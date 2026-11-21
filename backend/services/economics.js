@@ -57,6 +57,30 @@ function checkGeoFence(type, distKm) {
   return { ok: distKm <= limit, limit };
 }
 
+/**
+ * findNearestIdleBaler(balers, clusterLat, clusterLng) → baler object or null
+ * Filters balers with status === 'Idle', picks the one with minimum haversine distance.
+ */
+function findNearestIdleBaler(balers, clusterLat, clusterLng) {
+  if (!balers || balers.length === 0) return null;
+
+  const idleBalers = balers.filter((b) => b.status === 'Idle');
+  if (idleBalers.length === 0) return null;
+
+  let nearest = null;
+  let minDist = Infinity;
+
+  for (const baler of idleBalers) {
+    const dist = haversineKm(clusterLat, clusterLng, baler.lat, baler.lng);
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = baler;
+    }
+  }
+
+  return nearest;
+}
+
 module.exports = {
   STRAW_YIELD_PER_ACRE,
   BUYER_RATE_PER_TONNE,
@@ -69,5 +93,6 @@ module.exports = {
   PM25_PER_TONNE,
   FARMER_CLEARING_SAVED_PER_ACRE,
   haversineKm,
-  checkGeoFence
+  checkGeoFence,
+  findNearestIdleBaler
 };
