@@ -1,35 +1,115 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { Leaf, Wind, ShieldCheck, IndianRupee } from 'lucide-react';
-import { fmtINR, fmtNum } from '@/lib/economics';
-import { useParali } from './provider';
+import * as React from 'react'
+import { Banknote, Cloud, Factory, Leaf, PiggyBank, Wind } from 'lucide-react'
+import { fmtINR, fmtINRCompact, fmtNum } from '@/lib/economics'
+import { cn } from '@/lib/utils'
+import { useParali } from './provider'
 
-export function ImpactStrip() {
-  const { impact } = useParali();
-
-  if (!impact) return null;
+function Kpi({
+  label,
+  value,
+  title,
+  icon: Icon,
+  tone,
+}: {
+  label: string
+  value: string
+  title: string
+  icon: React.ComponentType<{ className?: string }>
+  tone: string
+}) {
+  const [flash, setFlash] = React.useState(0)
+  const first = React.useRef(true)
+  React.useEffect(() => {
+    if (first.current) {
+      first.current = false
+      return
+    }
+    setFlash((n) => n + 1)
+  }, [value])
 
   return (
-    <aside aria-label="Ecological impact ticker" className="border-b bg-muted/40 py-2">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 text-xs md:px-6">
-        <div className="flex items-center gap-1.5 font-medium">
-          <Leaf className="size-4 text-emerald-600" aria-hidden="true" />
-          <span>{fmtNum(impact.tonnes_diverted)} t straw diverted</span>
-        </div>
-        <div className="flex items-center gap-1.5 font-medium text-emerald-700">
-          <Wind className="size-4" aria-hidden="true" />
-          <span>{fmtNum(impact.co2_avoided_tonnes, 1)} t CO₂ avoided</span>
-        </div>
-        <div className="flex items-center gap-1.5 font-medium text-blue-700">
-          <ShieldCheck className="size-4" aria-hidden="true" />
-          <span>{fmtNum(impact.pm25_prevented_kg)} kg PM2.5 blocked</span>
-        </div>
-        <div className="flex items-center gap-1.5 font-medium text-amber-700">
-          <IndianRupee className="size-4" aria-hidden="true" />
-          <span>{fmtINR(impact.farmer_clearing_saved_inr)} clearing saved</span>
-        </div>
+    <div
+      key={flash}
+      title={title}
+      className={cn('rounded-xl border bg-card px-3 py-2.5 shadow-xs', flash > 0 && 'kpi-flash')}
+    >
+      <div className="flex items-center gap-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+        <Icon className={cn('size-3.5', tone)} aria-hidden="true" />
+        {label}
       </div>
-    </aside>
-  );
+      <div className="mt-0.5 text-xl font-semibold tabular-nums tracking-tight text-forest">{value}</div>
+    </div>
+  )
+}
+
+export function ImpactStrip() {
+  const { impact } = useParali()
+  if (!impact) {
+    return (
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2 px-4 py-3 md:grid-cols-3 md:px-6 lg:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-[62px] animate-pulse rounded-xl bg-muted" />
+        ))}
+      </div>
+    )
+  }
+
+  const tonnesDiverted = impact.tonnesDiverted ?? impact.tonnes_diverted ?? 0
+  const co2AvoidedTonnes = impact.co2AvoidedTonnes ?? impact.co2_avoided_tonnes ?? 0
+  const pm25PreventedKg = impact.pm25PreventedKg ?? impact.pm25_prevented_kg ?? 0
+  const farmerClearingSaved = impact.farmerClearingSaved ?? impact.farmer_clearing_saved_inr ?? 0
+  const ruralCashPaid = impact.ruralCashPaid ?? impact.rural_cash_paid_inr ?? 0
+  const platformNetProfit = impact.platformNetProfit ?? impact.platform_net_profit_inr ?? 0
+
+  return (
+    <section
+      aria-label="Live impact"
+      className="mx-auto grid max-w-7xl grid-cols-2 gap-2 px-4 py-3 md:grid-cols-3 md:px-6 lg:grid-cols-6"
+    >
+      <Kpi
+        label="Tonnes Diverted"
+        value={fmtNum(tonnesDiverted)}
+        title="Straw collected from dispatched clusters at 2.0 t/acre"
+        icon={Leaf}
+        tone="text-verified"
+      />
+      <Kpi
+        label="CO₂ Avoided (t)"
+        value={fmtNum(co2AvoidedTonnes, 1)}
+        title="1.46 tonnes CO₂ avoided per tonne of straw"
+        icon={Cloud}
+        tone="text-verified"
+      />
+      <Kpi
+        label="PM2.5 Prevented (kg)"
+        value={fmtNum(pm25PreventedKg)}
+        title="3.0 kg PM2.5 prevented per tonne of straw"
+        icon={Wind}
+        tone="text-sky-600"
+      />
+      <Kpi
+        label="Farmer Clearing Saved"
+        value={fmtINRCompact(farmerClearingSaved)}
+        title={`${fmtINR(farmerClearingSaved)} saved at Rs 4,000 per acre`}
+        icon={PiggyBank}
+        tone="text-harvest"
+      />
+      <Kpi
+        label="Rural Cash Paid"
+        value={fmtINRCompact(ruralCashPaid)}
+        title={`${fmtINR(ruralCashPaid)}: farmer UPI share + coordinator pool + local transport and hub wages, paid on settled lots`}
+        icon={Banknote}
+        tone="text-harvest"
+      />
+      <Kpi
+        label="Platform Net Profit"
+        value={fmtINRCompact(platformNetProfit)}
+        title={`${fmtINR(platformNetProfit)} at Rs 800 per settled acre`}
+        icon={Factory}
+        tone="text-forest"
+      />
+    </section>
+  )
 }

@@ -1,145 +1,166 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import type { Cluster, Fleet, Lot, ImpactMetrics, BookingResult, SettlementResult } from '@/types/paralisetu';
-import * as api from '@/lib/api';
+import * as React from 'react'
+import {
+  createBooking,
+  getBulkLots,
+  getClusters,
+  getFleet,
+  getHotspots,
+  getImpactSummary,
+  reserveBulkLot,
+  resetDemo,
+} from '@/lib/api'
+import { translate } from '@/lib/i18n'
+import type {
+  BookingPayload,
+  BookingResult,
+  BulkLot,
+  ClusterView,
+  FleetSnapshot,
+  Hotspot,
+  ImpactSummary,
+  Language,
+  SettlementResult,
+} from '@/types/paralisetu'
 
-export type TabKey = 'map' | 'booking' | 'buyers' | 'economics';
+export type TabKey = 'map' | 'booking' | 'buyers' | 'economics'
 
-interface ParaliContextType {
-  ready: boolean;
-  tab: TabKey;
-  setTab: (tab: TabKey) => void;
-  lang: string;
-  setLang: (lang: string) => void;
-  clusters: Cluster[];
-  selectedClusterId: string | null;
-  selectCluster: (id: string) => void;
-  bookingVillageId: string;
-  setBookingVillageId: (id: string) => void;
-  fleet: Fleet;
-  lots: Lot[];
-  impact: ImpactMetrics | null;
-  submitBooking: (payload: any) => Promise<BookingResult>;
-  settleLot: (lotId: string) => Promise<SettlementResult>;
-  refresh: () => Promise<void>;
-  t: (key: string) => string;
+export interface ParaliContextValue {
+  ready: boolean
+  hotspots: Hotspot[]
+  clusters: ClusterView[]
+  fleet: FleetSnapshot
+  lots: BulkLot[]
+  impact: ImpactSummary | null
+  lang: Language
+  setLang: (l: Language) => void
+  t: (key: string) => string
+  tab: TabKey
+  setTab: (t: TabKey) => void
+  selectedClusterId: string | null
+  selectCluster: (id: string | null) => void
+  bookingVillageId: string
+  setBookingVillageId: (id: string) => void
+  goBookVillage: (id: string) => void
+  submitBooking: (payload: BookingPayload) => Promise<BookingResult>
+  settleLot: (lotId: string) => Promise<SettlementResult>
+  reset: () => Promise<void>
+  refresh: () => Promise<void>
 }
 
-const ParaliContext = React.createContext<ParaliContextType | null>(null);
+const ParaliContext = React.createContext<ParaliContextValue | null>(null)
+
+const EMPTY_FLEET: FleetSnapshot = { balers: [], hubs: [], buyers: [] }
 
 export function ParaliProvider({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = React.useState(false);
-  const [tab, setTab] = React.useState<TabKey>('map');
-  const [lang, setLang] = React.useState('en');
-  const [clusters, setClusters] = React.useState<Cluster[]>([]);
-  const [selectedClusterId, setSelectedClusterId] = React.useState<string | null>(null);
-  const [bookingVillageId, setBookingVillageId] = React.useState<string>('CL-001');
-  const [fleet, setFleet] = React.useState<Fleet>({ balers: [], storage_hubs: [], buyers: [], hubs: [] });
-  const [lots, setLots] = React.useState<Lot[]>([]);
-  const [impact, setImpact] = React.useState<ImpactMetrics | null>(null);
+  const [ready, setReady] = React.useState(false)
+  const [hotspots, setHotspots] = React.useState<Hotspot[]>([])
+  const [clusters, setClusters] = React.useState<ClusterView[]>([])
+  const [fleet, setFleet] = React.useState<FleetSnapshot>(EMPTY_FLEET)
+  const [lots, setLots] = React.useState<BulkLot[]>([])
+  const [impact, setImpact] = React.useState<ImpactSummary | null>(null)
+  const [lang, setLang] = React.useState<Language>('en')
+  const [tab, setTab] = React.useState<TabKey>('map')
+  const [selectedClusterId, setSelectedClusterId] = React.useState<string | null>(null)
+  const [bookingVillageId, setBookingVillageId] = React.useState('CL-001')
 
-  const normalizeClusters = (raw: Cluster[]): Cluster[] => {
-    return raw.map((c) => ({
-      ...c,
-      name: c.village || c.name || '',
-      totalAcres: c.total_booked_acres ?? c.totalAcres ?? 0,
-      progressPct: Math.min(100, Math.round(((c.total_booked_acres ?? 0) / (c.threshold_acres || 20)) * 100)),
-      status: (c.status === 'Machine Dispatched' ? 'dispatched' : 'gathering') as any,
-      latestHarvestDate: c.latest_harvest_date || '',
-    }));
-  };
-
-  const normalizeLots = (raw: Lot[]): Lot[] => {
-    return raw.map((l) => ({
-      ...l,
-      status: (l.status === 'Ready for Pickup' ? 'available' : 'sold') as any,
-    }));
-  };
-
-  const loadData = React.useCallback(async () => {
+  const refresh = React.useCallback(async () => {
     try {
-      const [cRes, fRes, lRes, imp] = await Promise.all([
-        api.fetchClusters().catch(() => ({ clusters: [] })),
-        api.fetchFleet().catch(() => ({ balers: [], storage_hubs: [], buyers: [] })),
-        api.fetchLots().catch(() => ({ lots: [] })),
-        api.fetchImpact().catch(() => null),
-      ]);
-
-      const normalizedClusters = normalizeClusters(cRes.clusters);
-      setClusters(normalizedClusters);
-
-      const hubs = (fRes.storage_hubs || []).map((h) => ({
-        ...h,
-        storedTonnes: h.current_tonnes,
-        capacityTonnes: h.capacity_tonnes,
-      }));
-
-      setFleet({
-        ...fRes,
-        hubs,
-      });
-
-      setLots(normalizeLots(lRes.lots));
-      setImpact(imp);
-      if (normalizedClusters.length > 0 && !selectedClusterId) {
-        setSelectedClusterId(normalizedClusters[0].id);
-        setBookingVillageId(normalizedClusters[0].id);
-      }
-    } catch (e) {
-      console.error('Failed to load ParaliSetu data:', e);
-    } finally {
-      setReady(true);
+      const [c, f, l, i] = await Promise.all([getClusters(), getFleet(), getBulkLots(), getImpactSummary()])
+      setClusters(c)
+      setFleet(f)
+      setLots(l)
+      setImpact(i)
+    } catch (err) {
+      console.error('Failed to refresh data:', err)
     }
-  }, [selectedClusterId]);
+  }, [])
 
   React.useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false
+    ;(async () => {
+      try {
+        const h = await getHotspots()
+        await refresh()
+        if (!cancelled) {
+          setHotspots(h)
+          setReady(true)
+        }
+      } catch (err) {
+        console.error('Failed to initialize data:', err)
+        if (!cancelled) setReady(true)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [refresh])
 
-  const submitBooking = async (payload: any): Promise<BookingResult> => {
-    const res = await api.submitBooking(payload);
-    await loadData();
-    return res;
-  };
+  const submitBooking = React.useCallback(
+    async (payload: BookingPayload) => {
+      const result = await createBooking(payload)
+      await refresh()
+      return result
+    },
+    [refresh],
+  )
 
-  const settleLot = async (lotId: string): Promise<SettlementResult> => {
-    const res = await api.settleLot(lotId);
-    await loadData();
-    return res;
-  };
+  const settleLot = React.useCallback(
+    async (lotId: string) => {
+      const result = await reserveBulkLot(lotId)
+      await refresh()
+      return result
+    },
+    [refresh],
+  )
 
-  const t = (key: string) => key;
+  const reset = React.useCallback(async () => {
+    await resetDemo()
+    setSelectedClusterId(null)
+    setBookingVillageId('CL-001')
+    await refresh()
+  }, [refresh])
 
-  return (
-    <ParaliContext.Provider
-      value={{
-        ready,
-        tab,
-        setTab,
-        lang,
-        setLang,
-        clusters,
-        selectedClusterId,
-        selectCluster: setSelectedClusterId,
-        bookingVillageId,
-        setBookingVillageId,
-        fleet,
-        lots,
-        impact,
-        submitBooking,
-        settleLot,
-        refresh: loadData,
-        t,
-      }}
-    >
-      {children}
-    </ParaliContext.Provider>
-  );
+  const goBookVillage = React.useCallback((id: string) => {
+    setBookingVillageId(id)
+    setSelectedClusterId(null)
+    setTab('booking')
+  }, [])
+
+  const t = React.useCallback((key: string) => translate(lang, key), [lang])
+
+  const value = React.useMemo<ParaliContextValue>(
+    () => ({
+      ready,
+      hotspots,
+      clusters,
+      fleet,
+      lots,
+      impact,
+      lang,
+      setLang,
+      t,
+      tab,
+      setTab,
+      selectedClusterId,
+      selectCluster: setSelectedClusterId,
+      bookingVillageId,
+      setBookingVillageId,
+      goBookVillage,
+      submitBooking,
+      settleLot,
+      reset,
+      refresh,
+    }),
+    [ready, hotspots, clusters, fleet, lots, impact, lang, t, tab, selectedClusterId, bookingVillageId, goBookVillage, submitBooking, settleLot, reset, refresh],
+  )
+
+  return <ParaliContext.Provider value={value}>{children}</ParaliContext.Provider>
 }
 
 export function useParali() {
-  const ctx = React.useContext(ParaliContext);
-  if (!ctx) throw new Error('useParali must be used within ParaliProvider');
-  return ctx;
+  const ctx = React.useContext(ParaliContext)
+  if (!ctx) throw new Error('useParali must be used within ParaliProvider')
+  return ctx
 }
