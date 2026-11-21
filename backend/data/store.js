@@ -171,4 +171,21 @@ const SEED = {
   ]
 };
 
-module.exports = { SEED };
+function readDB() {
+  if (!fs.existsSync(DB_PATH)) {
+    resetDemoData();
+  }
+  return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+}
+
+function writeDB(data) {
+  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+function resetDemoData() {
+  const data = JSON.parse(JSON.stringify(SEED));
+  writeDB(data);
+  return data;
+}
+
+module.exports = { readDB, writeDB, resetDemoData };
