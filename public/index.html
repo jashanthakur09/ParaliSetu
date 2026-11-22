@@ -3,97 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ParaliSetu | Stubble Aggregation & Rural Baler Logistics Platform</title>
-  
+  <title>ParaliSetu | Stubble Aggregation & Rural Baler Logistics</title>
+
+  <!-- Clean Human-Readable Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Leaflet CSS & JS (OpenStreetMap - Zero API Key Required) -->
+  <!-- Leaflet CSS & JS (OpenStreetMap) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <!-- Formal Enterprise Light-Mode Styles -->
+
+  <!-- Clean Formal Light Styles -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-[#F8FAFC] text-[#0F172A] min-h-screen flex flex-col antialiased">
+<body class="bg-[#F8F9FA] text-[#111827] min-h-screen flex flex-col antialiased">
 
   <!-- ======================================================== -->
-  <!-- TOP NAVIGATION BAR (DEEP FOREST GREEN #143628)           -->
+  <!-- CLEAN LIGHT HEADER                                       -->
   <!-- ======================================================== -->
-  <header class="top-navbar px-4 sm:px-6 py-3 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-      
-      <!-- Brand & Description -->
-      <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white">
-          <i data-lucide="satellite" class="w-5 h-5 text-emerald-300"></i>
+  <header class="top-navbar bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-[#15803D] flex items-center justify-center text-white shrink-0">
+          <i data-lucide="sprout" class="w-5 h-5"></i>
         </div>
         <div>
-          <div class="flex items-center space-x-2">
-            <span class="text-lg font-bold tracking-tight text-white" data-i18n="brandName">
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-bold tracking-tight text-slate-900" data-i18n="brandName">
               ParaliSetu
             </span>
-            <span class="text-[11px] px-2 py-0.5 rounded bg-white/10 text-white font-medium border border-white/20 font-mono-code">
-              ਪਰਾਲੀਸੇਤੂ 1.0
-            </span>
-            <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-medium">
-              NASA VIIRS Active
-            </span>
+            <span class="text-sm font-medium text-slate-500">ਪਰਾਲੀਸੇਤੂ</span>
           </div>
-          <p class="text-xs text-white/80 hidden sm:block font-normal mt-0.5" data-i18n="brandTagline">
+          <p class="text-xs text-slate-500 hidden sm:block" data-i18n="brandTagline">
             Paddy Stubble Aggregation & Rural Baler Logistics Platform
           </p>
         </div>
       </div>
 
-      <!-- Controls: Language Selector & Reset Demo -->
-      <div class="flex items-center space-x-2.5">
-        
-        <!-- Trilingual Switcher -->
-        <div class="relative flex items-center bg-white/10 border border-white/20 rounded-md px-2.5 py-1 text-xs">
-          <i data-lucide="languages" class="w-3.5 h-3.5 text-white/80 mr-1.5"></i>
-          <select id="langSelector" onchange="changeLanguage(this.value)" class="bg-transparent text-xs text-white font-medium focus:outline-none cursor-pointer pr-1">
-            <option value="en" class="bg-white text-slate-900">English (EN)</option>
-            <option value="pa" class="bg-white text-slate-900">ਪੰਜਾਬੀ (PA)</option>
-            <option value="hi" class="bg-white text-slate-900">हिन्दी (HI)</option>
+      <!-- Language Selector & Reset -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center bg-slate-50 border border-slate-300 rounded-lg px-3 h-11">
+          <i data-lucide="languages" class="w-4 h-4 text-slate-600 mr-2 shrink-0"></i>
+          <select id="langSelector" onchange="changeLanguage(this.value)" class="bg-transparent text-sm text-slate-900 font-medium focus:outline-none cursor-pointer pr-1">
+            <option value="en">English</option>
+            <option value="pa">ਪੰਜਾਬੀ</option>
+            <option value="hi">हिन्दी</option>
           </select>
         </div>
 
-        <!-- Reset Demo Baseline -->
-        <button onclick="resetDemo()" class="btn-secondary text-xs py-1 px-2.5 bg-white/10 text-white border-white/20 hover:bg-white/20" title="Reset Demo Data">
-          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-white/90"></i>
-          <span data-i18n="demoResetBtn">Reset Demo</span>
+        <button onclick="resetDemo()" class="btn-secondary h-11 px-4 text-sm" title="Reset Demo Data">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          <span class="hidden sm:inline" data-i18n="demoResetBtn">Reset Demo</span>
         </button>
-
       </div>
 
     </div>
   </header>
 
   <!-- ======================================================== -->
-  <!-- NAVIGATION TABS (CLEAN SINGLE ROW, NO MICRO-BADGES)      -->
+  <!-- PRIMARY NAVIGATION TABS (LARGE TAP TARGETS)              -->
   <!-- ======================================================== -->
-  <nav class="bg-white border-b border-slate-200 sticky top-[61px] z-40 px-4 sm:px-6">
-    <div class="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto">
-      
+  <nav class="bg-white border-b border-slate-200 sticky top-[69px] z-40 px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+
       <button onclick="switchTab('map-tab')" id="tabBtn-map-tab" class="enterprise-tab-btn active">
-        <i data-lucide="map" class="w-4 h-4"></i>
+        <i data-lucide="map" class="w-4 h-4 shrink-0"></i>
         <span data-i18n="tabMap">Command Map</span>
       </button>
 
       <button onclick="switchTab('booking-tab')" id="tabBtn-booking-tab" class="enterprise-tab-btn">
-        <i data-lucide="user-plus" class="w-4 h-4"></i>
+        <i data-lucide="calendar-plus" class="w-4 h-4 shrink-0"></i>
         <span data-i18n="tabBooking">Farmer Booking</span>
       </button>
 
       <button onclick="switchTab('b2b-tab')" id="tabBtn-b2b-tab" class="enterprise-tab-btn">
-        <i data-lucide="building-2" class="w-4 h-4"></i>
+        <i data-lucide="building-2" class="w-4 h-4 shrink-0"></i>
         <span data-i18n="tabB2B">Buyer Dashboard</span>
       </button>
 
       <button onclick="switchTab('econ-tab')" id="tabBtn-econ-tab" class="enterprise-tab-btn">
-        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+        <i data-lucide="bar-chart-3" class="w-4 h-4 shrink-0"></i>
         <span data-i18n="tabEconomics">Economics</span>
       </button>
 
@@ -101,82 +97,40 @@
   </nav>
 
   <!-- ======================================================== -->
-  <!-- PERSISTENT LIVE IMPACT STRIP (6 FLAT CARDS)              -->
+  <!-- LIVE IMPACT SUMMARY STRIP                                -->
   <!-- ======================================================== -->
-  <section class="bg-[#F8FAFC] border-b border-slate-200 px-4 sm:px-6 py-3.5">
+  <section class="bg-[#F8F9FA] border-b border-slate-200 px-4 sm:px-6 py-4">
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        
-        <!-- Metric 1: Tonnes Diverted -->
-        <div class="card-panel p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500">
-            <span class="text-[11px] font-semibold uppercase tracking-wider" data-i18n="kpiTonnes">Tonnes Diverted</span>
-            <i data-lucide="scale" class="w-3.5 h-3.5 text-slate-400"></i>
-          </div>
-          <div class="mt-1">
-            <div id="kpiTonnesVal" class="text-lg font-bold text-slate-900 tabular-nums">176.0 t</div>
-            <div class="text-[11px] text-slate-500 font-medium">2.0 t/acre yield</div>
-          </div>
+
+        <div class="card-panel p-3.5">
+          <div class="text-xs font-medium text-slate-500" data-i18n="kpiTonnes">Tonnes Diverted</div>
+          <div id="kpiTonnesVal" class="text-xl font-bold text-slate-900 tabular-nums mt-1">176.0 t</div>
         </div>
 
-        <!-- Metric 2: CO₂ Avoided -->
-        <div class="card-panel p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500">
-            <span class="text-[11px] font-semibold uppercase tracking-wider" data-i18n="kpiCo2">CO₂ Avoided (t)</span>
-            <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-600"></i>
-          </div>
-          <div class="mt-1">
-            <div id="kpiCo2Val" class="text-lg font-bold text-emerald-700 tabular-nums">257.0 t</div>
-            <div class="text-[11px] text-slate-500 font-medium">1.46 t CO₂ / t straw</div>
-          </div>
+        <div class="card-panel p-3.5">
+          <div class="text-xs font-medium text-slate-500" data-i18n="kpiCo2">CO₂ Avoided</div>
+          <div id="kpiCo2Val" class="text-xl font-bold text-[#15803D] tabular-nums mt-1">257.0 t</div>
         </div>
 
-        <!-- Metric 3: PM2.5 Prevented -->
-        <div class="card-panel p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500">
-            <span class="text-[11px] font-semibold uppercase tracking-wider" data-i18n="kpiPm25">PM2.5 Prevented</span>
-            <i data-lucide="wind" class="w-3.5 h-3.5 text-sky-600"></i>
-          </div>
-          <div class="mt-1">
-            <div id="kpiPm25Val" class="text-lg font-bold text-sky-700 tabular-nums">528.0 kg</div>
-            <div class="text-[11px] text-slate-500 font-medium">3.0 kg / t straw</div>
-          </div>
+        <div class="card-panel p-3.5">
+          <div class="text-xs font-medium text-slate-500" data-i18n="kpiPm25">PM2.5 Prevented</div>
+          <div id="kpiPm25Val" class="text-xl font-bold text-slate-900 tabular-nums mt-1">528.0 kg</div>
         </div>
 
-        <!-- Metric 4: Farmer Clearing Saved -->
-        <div class="card-panel p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500">
-            <span class="text-[11px] font-semibold uppercase tracking-wider" data-i18n="kpiFarmerSavings">Farmer Saved</span>
-            <i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-amber-600"></i>
-          </div>
-          <div class="mt-1">
-            <div id="kpiSavingsVal" class="text-lg font-bold text-slate-900 tabular-nums">₹3,52,000</div>
-            <div class="text-[11px] text-slate-500 font-medium">₹4,000/ac diesel saved</div>
-          </div>
+        <div class="card-panel p-3.5">
+          <div class="text-xs font-medium text-slate-500" data-i18n="kpiFarmerSavings">Farmer Saved</div>
+          <div id="kpiSavingsVal" class="text-xl font-bold text-slate-900 tabular-nums mt-1">₹3,52,000</div>
         </div>
 
-        <!-- Metric 5: Rural Cash Paid -->
-        <div class="card-panel p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500">
-            <span class="text-[11px] font-semibold uppercase tracking-wider" data-i18n="kpiRuralCash">Rural Cash Paid</span>
-            <i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-600"></i>
-          </div>
-          <div class="mt-1">
-            <div id="kpiCashVal" class="text-lg font-bold text-emerald-700 tabular-nums">₹26,400</div>
-            <div class="text-[11px] text-slate-500 font-medium">₹180 farmer + ₹120 pool</div>
-          </div>
+        <div class="card-panel p-3.5">
+          <div class="text-xs font-medium text-slate-500" data-i18n="kpiRuralCash">Rural Cash Paid</div>
+          <div id="kpiCashVal" class="text-xl font-bold text-[#15803D] tabular-nums mt-1">₹26,400</div>
         </div>
 
-        <!-- Metric 6: Platform Net Profit -->
-        <div class="card-panel p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500">
-            <span class="text-[11px] font-semibold uppercase tracking-wider" data-i18n="kpiPlatformProfit">Platform Net Profit</span>
-            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-slate-600"></i>
-          </div>
-          <div class="mt-1">
-            <div id="kpiProfitVal" class="text-lg font-bold text-slate-900 tabular-nums">₹70,400</div>
-            <div class="text-[11px] text-slate-500 font-medium">22.2% net margin</div>
-          </div>
+        <div class="card-panel p-3.5">
+          <div class="text-xs font-medium text-slate-500" data-i18n="kpiPlatformProfit">Platform Profit</div>
+          <div id="kpiProfitVal" class="text-xl font-bold text-slate-900 tabular-nums mt-1">₹70,400</div>
         </div>
 
       </div>
@@ -184,117 +138,102 @@
   </section>
 
   <!-- ======================================================== -->
-  <!-- MAIN WORKSPACE CONTENT                                   -->
+  <!-- MAIN WORKSPACE                                           -->
   <!-- ======================================================== -->
-  <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
 
     <!-- ======================================================== -->
-    <!-- TAB 1: COMMAND MAP & CLUSTER RADAR (LEAFLET.JS)          -->
+    <!-- TAB 1: COMMAND MAP & VILLAGE CLUSTERS                    -->
     <!-- ======================================================== -->
-    <div id="map-tab" class="tab-content space-y-4">
-      
-      <!-- Sub-header & Layer Toggles Bar -->
-      <div class="card-panel p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <div id="map-tab" class="tab-content space-y-5">
+
+      <!-- Clean Title & Layer Filter Bar -->
+      <div class="card-panel p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div class="flex items-center space-x-2">
-            <h2 class="text-base font-bold text-slate-900" data-i18n="mapHeaderTitle">
-              Agricultural Fire & Cluster Logistics Radar
-            </h2>
-            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 tabular-nums">
-              26 Hotspots Active
-            </span>
-          </div>
-          <p class="text-xs text-slate-500 mt-0.5" data-i18n="mapHeaderSub">
-            NASA VIIRS fire telemetry, 20-acre village clusters, and 15 km storage hub corridors across Punjab
+          <h1 class="text-lg font-bold text-slate-900" data-i18n="mapHeaderTitle">
+            Field Radar & Village Pickup Status
+          </h1>
+          <p class="text-sm text-slate-600 mt-0.5" data-i18n="mapHeaderSub">
+            Live NASA satellite hotspots, 20-acre village clusters, and storage hub corridors across Punjab.
           </p>
         </div>
 
-        <!-- Controls: Layer Toggles & View Reset -->
-        <div class="flex flex-wrap items-center gap-2.5 text-xs text-slate-700 font-medium">
-          <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded hover:bg-slate-100 transition">
-            <input type="checkbox" id="chkFires" checked onchange="toggleMapLayer('chkFires')" class="rounded border-slate-300 text-rose-600 focus:ring-0">
-            <span data-i18n="layerFires">NASA Hotspots (26)</span>
+        <!-- Layer Filters & Map Controls -->
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700 font-medium">
+          <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-300 px-3 h-10 rounded-lg hover:bg-slate-100">
+            <input type="checkbox" id="chkFires" checked onchange="toggleMapLayer('chkFires')" class="w-4 h-4 accent-rose-600">
+            <span data-i18n="layerFires">Hotspots</span>
           </label>
-          <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded hover:bg-slate-100 transition">
-            <input type="checkbox" id="chkClusters" checked onchange="toggleMapLayer('chkClusters')" class="rounded border-slate-300 text-amber-600 focus:ring-0">
-            <span data-i18n="layerClusters">Village Clusters</span>
+          <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-300 px-3 h-10 rounded-lg hover:bg-slate-100">
+            <input type="checkbox" id="chkClusters" checked onchange="toggleMapLayer('chkClusters')" class="w-4 h-4 accent-amber-600">
+            <span data-i18n="layerClusters">Villages</span>
           </label>
-          <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded hover:bg-slate-100 transition">
-            <input type="checkbox" id="chkHubs" checked onchange="toggleMapLayer('chkHubs')" class="rounded border-slate-300 text-sky-600 focus:ring-0">
-            <span data-i18n="layerHubs">Storage Hubs (15 km)</span>
+          <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-300 px-3 h-10 rounded-lg hover:bg-slate-100">
+            <input type="checkbox" id="chkHubs" checked onchange="toggleMapLayer('chkHubs')" class="w-4 h-4 accent-sky-600">
+            <span data-i18n="layerHubs">Hubs</span>
           </label>
-          <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded hover:bg-slate-100 transition">
-            <input type="checkbox" id="chkBuyers" checked onchange="toggleMapLayer('chkBuyers')" class="rounded border-slate-300 text-purple-600 focus:ring-0">
-            <span data-i18n="layerBuyers">Industrial Plants (50 km)</span>
+          <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-300 px-3 h-10 rounded-lg hover:bg-slate-100">
+            <input type="checkbox" id="chkBuyers" checked onchange="toggleMapLayer('chkBuyers')" class="w-4 h-4 accent-purple-600">
+            <span data-i18n="layerBuyers">Plants</span>
           </label>
 
-          <div class="h-4 w-[1px] bg-slate-200 mx-0.5 hidden sm:block"></div>
-
-          <!-- Map Zoom / Reset Buttons -->
-          <div class="inline-flex items-center rounded border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <button onclick="zoomInMap()" class="px-2 py-1 text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-r border-slate-200" title="Zoom In">+</button>
-            <button onclick="zoomOutMap()" class="px-2 py-1 text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-r border-slate-200" title="Zoom Out">−</button>
-            <button onclick="resetMapView()" class="px-2.5 py-1 text-xs text-slate-700 hover:bg-slate-50 font-medium" data-i18n="btnResetView">Reset View</button>
+          <div class="inline-flex items-center rounded-lg border border-slate-300 bg-white overflow-hidden h-10">
+            <button onclick="zoomInMap()" class="px-3 h-full text-slate-700 hover:bg-slate-100 border-r border-slate-200 font-semibold" title="Zoom In">+</button>
+            <button onclick="zoomOutMap()" class="px-3 h-full text-slate-700 hover:bg-slate-100 border-r border-slate-200 font-semibold" title="Zoom Out">−</button>
+            <button onclick="resetMapView()" class="px-3 h-full text-sm text-slate-700 hover:bg-slate-100 font-medium" data-i18n="btnResetView">Reset</button>
           </div>
         </div>
       </div>
 
-      <!-- Main Layout: Real Leaflet Map (68%) + Cluster Radar List (32%) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        
-        <!-- Interactive Leaflet Map Column -->
-        <div class="lg:col-span-8 card-panel overflow-hidden relative">
-          <!-- Leaflet Container -->
+      <!-- Map + Cluster List -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Interactive Map -->
+        <div class="lg:col-span-8 card-panel overflow-hidden">
           <div id="leafletMap"></div>
 
-          <!-- Legend Footer -->
-          <div class="p-3 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+          <!-- Simple Legend -->
+          <div class="px-4 py-3 bg-white border-t border-slate-200 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-600 font-medium">
             <div class="flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block"></span>
-              <span data-i18n="mapLegendFires">Active Thermal Hotspot</span>
+              <span data-i18n="mapLegendFires">Fire Hotspot</span>
             </div>
             <div class="flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-              <span data-i18n="mapLegendGathering">Gathering Demand (&lt;20 Ac)</span>
+              <span data-i18n="mapLegendGathering">Gathering (&lt;20 ac)</span>
             </div>
             <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
-              <span data-i18n="mapLegendDispatched">Machine Dispatched (≥20 Ac)</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#15803D] inline-block"></span>
+              <span data-i18n="mapLegendDispatched">Dispatched (≥20 ac)</span>
             </div>
             <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded border border-sky-600 bg-sky-50 inline-block"></span>
-              <span data-i18n="mapLegendHub">Storage Hub (≤15 km)</span>
+              <span class="w-2.5 h-2.5 rounded border border-sky-600 bg-sky-100 inline-block"></span>
+              <span data-i18n="mapLegendHub">Storage Hub</span>
             </div>
             <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded border border-purple-600 bg-purple-50 inline-block"></span>
-              <span data-i18n="mapLegendBuyer">Industrial Buyer (≤50 km)</span>
+              <span class="w-2.5 h-2.5 rounded border border-purple-600 bg-purple-100 inline-block"></span>
+              <span data-i18n="mapLegendBuyer">Industrial Buyer</span>
             </div>
           </div>
         </div>
 
-        <!-- Right Side: Cluster Radar List Column -->
-        <div class="lg:col-span-4 card-panel p-4 flex flex-col justify-between space-y-3">
+        <!-- Village Cluster List -->
+        <div class="lg:col-span-4 card-panel p-5 flex flex-col justify-between gap-4">
           <div>
-            <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
-              <div>
-                <h3 class="font-bold text-sm text-slate-900" data-i18n="clusterRadarTitle">Village Aggregation Clusters</h3>
-                <p class="text-xs text-slate-500 mt-0.5" data-i18n="clusterRadarSub">20-acre pooling threshold for automatic baler dispatch</p>
-              </div>
-              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 tabular-nums">
-                6 Active
-              </span>
+            <div class="border-b border-slate-200 pb-3">
+              <h2 class="font-bold text-base text-slate-900" data-i18n="clusterRadarTitle">Village Pickup Clusters</h2>
+              <p class="text-xs text-slate-500 mt-1" data-i18n="clusterRadarSub">Baler dispatches automatically once a village reaches 20 acres.</p>
             </div>
 
-            <!-- Dynamic Cluster Radar List (Populated by app.js) -->
-            <div id="clusterRadarList" class="space-y-2 mt-3 overflow-y-auto max-h-[460px] pr-1">
-              <!-- Rendered dynamically -->
+            <div id="clusterRadarList" class="space-y-3 mt-4 overflow-y-auto max-h-[440px] pr-1">
+              <!-- Populated dynamically by app.js -->
             </div>
           </div>
 
-          <div class="pt-2 border-t border-slate-100">
-            <button onclick="switchTab('booking-tab')" class="btn-primary w-full text-xs py-2.5">
-              <i data-lucide="plus-circle" class="w-4 h-4"></i>
-              <span>Register Landholding Clearing</span>
+          <div class="pt-3 border-t border-slate-200">
+            <button onclick="switchTab('booking-tab')" class="btn-primary w-full">
+              <i data-lucide="plus-circle" class="w-5 h-5"></i>
+              <span>Book Free Field Clearing</span>
             </button>
           </div>
         </div>
@@ -306,304 +245,268 @@
     <!-- ======================================================== -->
     <!-- TAB 2: FARMER & VILLAGE BOOKING PORTAL                   -->
     <!-- ======================================================== -->
-    <div id="booking-tab" class="tab-content space-y-4 hidden">
-      
-      <!-- Sub-header & Switcher -->
-      <div class="card-panel p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="booking-tab" class="tab-content space-y-5 hidden">
+
+      <!-- Section Header & Mode Switcher -->
+      <div class="card-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900" data-i18n="bookingTitle">Stubble Clearing Registration</h2>
-          <p class="text-xs text-slate-500 mt-0.5" data-i18n="bookingSubtitle">
-            Aggregate landholdings to 20 acres to trigger zero-cost industrial baler dispatch.
+          <h1 class="text-lg font-bold text-slate-900" data-i18n="bookingTitle">Free Paddy Straw Clearing Registration</h1>
+          <p class="text-sm text-slate-600 mt-0.5" data-i18n="bookingSubtitle">
+            Pool 20 acres in your village for zero-cost baler pickup and direct farmer cashback.
           </p>
         </div>
 
-        <!-- Mode Switcher -->
-        <div class="flex items-center bg-slate-100 p-1 rounded-md border border-slate-200 text-xs">
-          <button id="btnModeCaptain" onclick="setBookingMode('captain')" class="px-3 py-1.5 rounded-md bg-[#143628] text-white font-medium text-xs shadow-sm transition">
-            <span data-i18n="bookingModeCaptain">Village Captain / Sarpanch (Bulk Entry)</span>
+        <!-- Large Clear Mode Switcher -->
+        <div class="inline-flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+          <button id="btnModeCaptain" onclick="setBookingMode('captain')" class="px-4 py-2.5 rounded-md bg-[#15803D] text-white font-semibold text-sm transition">
+            <span data-i18n="bookingModeCaptain">Village Sarpanch (Bulk)</span>
           </button>
-          <button id="btnModeFarmer" onclick="setBookingMode('farmer')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 font-medium text-xs transition">
-            <span data-i18n="bookingModeFarmer">Individual Landholder</span>
+          <button id="btnModeFarmer" onclick="setBookingMode('farmer')" class="px-4 py-2.5 rounded-md text-slate-700 hover:text-slate-900 font-semibold text-sm transition">
+            <span data-i18n="bookingModeFarmer">Individual Farmer</span>
           </button>
         </div>
       </div>
 
-      <!-- ======================================================== -->
-      <!-- VIEW 1: VILLAGE CAPTAIN / SARPANCH (BULK ENTRY & REFERRAL)-->
-      <!-- ======================================================== -->
-      <div id="captainViewContainer" class="space-y-4">
-        
-        <!-- Sarpanch Identity & Official Referral Broadcast Card -->
-        <div class="card-panel p-5 bg-gradient-to-r from-emerald-50/50 via-white to-slate-50 border border-emerald-200/80">
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            
-            <!-- Left Info -->
-            <div class="md:col-span-7 space-y-2">
-              <div class="flex items-center space-x-2">
-                <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-[#143628] text-white uppercase tracking-wider" data-i18n="captainBadge">
-                  Village Sarpanch
-                </span>
-                <span class="text-xs font-semibold text-emerald-800" data-i18n="captainCardTitle">Official Panchayat Coordinator Portal</span>
+      <!-- VIEW 1: VILLAGE CAPTAIN / SARPANCH -->
+      <div id="captainViewContainer" class="space-y-5">
+
+        <!-- Sarpanch Coordinator Card -->
+        <div class="card-panel p-5">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+
+            <div class="md:col-span-7 space-y-1.5">
+              <div class="text-xs font-semibold uppercase tracking-wide text-[#15803D]" data-i18n="captainCardTitle">
+                Village Coordinator Portal
               </div>
-              <h3 class="text-base font-bold text-slate-900" data-i18n="captainNameLabel">
+              <h2 class="text-base font-bold text-slate-900" data-i18n="captainNameLabel">
                 Jaswant Singh (Sarpanch) — Village Kheri Panchayat
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed" data-i18n="captainReferralDesc">
-                Share this official code or 1-tap WhatsApp invite link with landholders. Individual registrations using this code credit ₹120/acre to the Panchayat coordinator fund while providing farmers ₹0 stubble clearance.
+              </h2>
+              <p class="text-sm text-slate-600 leading-relaxed" data-i18n="captainReferralDesc">
+                Share this village code with farmers. Registrations using this code credit ₹120/acre to the Panchayat fund while farmers get ₹0 clearing.
               </p>
             </div>
 
-            <!-- Right: Sarpanch Referral Code & WhatsApp Share -->
-            <div class="md:col-span-5 bg-white p-4 rounded-md border border-slate-200 shadow-xs space-y-2.5">
-              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" data-i18n="captainReferralTitle">
-                Official Village Referral Identifier
+            <div class="md:col-span-5 bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
+              <div class="text-xs font-semibold text-slate-600" data-i18n="captainReferralTitle">
+                Village Referral Code
               </div>
-              
-              <div class="flex items-center space-x-2">
-                <div id="sarpanchCodeDisplay" class="flex-1 bg-slate-50 border border-slate-300 rounded px-3 py-1.5 text-center font-mono-code font-bold text-base text-slate-900 tracking-wider">
+
+              <div class="flex items-center gap-2">
+                <div id="sarpanchCodeDisplay" class="flex-1 bg-white border border-slate-300 rounded-lg px-3 h-11 flex items-center justify-center font-mono-code font-bold text-base text-slate-900">
                   SARPANCH-KHERI
                 </div>
-                <button type="button" onclick="copySarpanchCode()" id="btnCopyCodeEl" class="btn-secondary text-xs py-1.5 px-3 whitespace-nowrap">
-                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                  <span data-i18n="btnCopyCode">Copy Code</span>
+                <button type="button" onclick="copySarpanchCode()" id="btnCopyCodeEl" class="btn-secondary h-11 px-4 text-sm whitespace-nowrap">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                  <span data-i18n="btnCopyCode">Copy</span>
                 </button>
               </div>
 
-              <!-- 1-Tap Broadcast WhatsApp Button -->
-              <button type="button" onclick="broadcastSarpanchWhatsApp()" class="w-full inline-flex items-center justify-center space-x-2 rounded-md bg-[#25D366] hover:bg-[#20ba59] text-white font-semibold text-xs py-2 px-3 shadow-xs transition">
-                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                <span data-i18n="btnBroadcastWhatsApp">Broadcast WhatsApp Invite to Villagers</span>
+              <button type="button" onclick="broadcastSarpanchWhatsApp()" class="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white font-semibold text-sm px-4 transition">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+                <span data-i18n="btnBroadcastWhatsApp">Share Invite on WhatsApp</span>
               </button>
-
-              <div class="text-[11px] text-slate-500 text-center">
-                Panchayat Incentive: <strong class="text-emerald-700">₹120 / acre</strong> pool on all enrolled land
-              </div>
             </div>
 
           </div>
         </div>
 
-        <!-- Multi-Farmer Batch Registration Table Card -->
-        <div class="card-panel p-5 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+        <!-- Multi-Farmer Batch Registration Table -->
+        <div class="card-panel p-5 space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
             <div>
-              <h3 class="text-sm font-bold text-slate-900" data-i18n="batchTableTitle">Multi-Farmer Batch Stubble Registration</h3>
-              <p class="text-xs text-slate-500 mt-0.5" data-i18n="batchTableSub">
-                Enter multiple landholders at once to aggregate village acreage towards the 20-acre baler dispatch threshold. (No referral code required for Sarpanch batch)
+              <h2 class="text-base font-bold text-slate-900" data-i18n="batchTableTitle">Register Multiple Farmers</h2>
+              <p class="text-sm text-slate-600 mt-0.5" data-i18n="batchTableSub">
+                Add farmers together to reach the 20-acre baler dispatch mark faster.
               </p>
             </div>
 
-            <!-- Target Village Selector -->
-            <div class="flex items-center space-x-2">
-              <span class="text-xs text-slate-500 font-medium whitespace-nowrap">Village:</span>
-              <select id="captainVillageSelect" onchange="onCaptainVillageChange()" class="form-select text-xs py-1.5 font-medium">
+            <div class="flex items-center gap-2">
+              <label for="captainVillageSelect" class="text-sm font-medium text-slate-700 whitespace-nowrap">Village:</label>
+              <select id="captainVillageSelect" onchange="onCaptainVillageChange()" class="form-select min-w-[200px]">
                 <!-- Populated dynamically -->
               </select>
             </div>
           </div>
 
-          <!-- Dynamic Multi-Farmer Table -->
-          <div class="overflow-x-auto border border-slate-200 rounded-md">
-            <table class="w-full text-xs text-left" id="batchTable">
-              <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
+          <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-sm text-left" id="batchTable">
+              <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wide border-b border-slate-200">
                 <tr>
-                  <th class="py-2.5 px-3 w-10 text-center" data-i18n="colIndex">#</th>
-                  <th class="py-2.5 px-3" data-i18n="colFarmerName">Landholder Full Name</th>
-                  <th class="py-2.5 px-3" data-i18n="colPhone">Primary Contact Number</th>
-                  <th class="py-2.5 px-3 w-32" data-i18n="colAcres">Area (Acres)</th>
-                  <th class="py-2.5 px-3 w-36" data-i18n="colHarvestDate">Crop Harvest Date</th>
-                  <th class="py-2.5 px-3 w-16 text-center" data-i18n="colAction">Action</th>
+                  <th class="py-3 px-3 w-12 text-center" data-i18n="colIndex">#</th>
+                  <th class="py-3 px-3" data-i18n="colFarmerName">Farmer Name</th>
+                  <th class="py-3 px-3" data-i18n="colPhone">Mobile Number</th>
+                  <th class="py-3 px-3 w-32" data-i18n="colAcres">Acres</th>
+                  <th class="py-3 px-3 w-40" data-i18n="colHarvestDate">Harvest Date</th>
+                  <th class="py-3 px-3 w-16 text-center" data-i18n="colAction">Remove</th>
                 </tr>
               </thead>
-              <tbody id="batchTableBody" class="divide-y divide-slate-100 bg-white">
-                <!-- Rows injected dynamically by renderBatchRows() in app.js -->
+              <tbody id="batchTableBody" class="divide-y divide-slate-200 bg-white">
+                <!-- Rows injected by app.js -->
               </tbody>
             </table>
           </div>
 
-          <!-- Row Add Button & Table Controls -->
-          <div class="flex items-center justify-between">
-            <button type="button" onclick="addBatchRow()" class="btn-secondary text-xs py-1.5 px-3 inline-flex items-center space-x-1.5">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              <span data-i18n="btnAddRow">Add Another Farmer Row</span>
-            </button>
-            <span class="text-xs text-slate-500">
-              Default pre-seeded: 2 farmers (5.0 ac total) to trigger Kheri 16 → 21 ac dispatch
-            </span>
-          </div>
-
-          <!-- Live Batch Summary Bar -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-3.5 rounded-md border border-slate-200 text-xs">
-            <div>
-              <span class="text-slate-500 block text-[11px]" data-i18n="batchTotalFarmers">Total Farmers in Batch:</span>
-              <span id="batchCountVal" class="text-slate-900 font-bold text-sm tabular-nums">2</span>
-            </div>
-            <div>
-              <span class="text-slate-500 block text-[11px]" data-i18n="batchTotalAcres">Total Stubble Area:</span>
-              <span id="batchAcresVal" class="text-slate-900 font-bold text-sm tabular-nums">5.0 Acres</span>
-              <span id="batchTonnesVal" class="text-[10px] text-slate-500 font-mono-code">(~10.0 Tonnes)</span>
-            </div>
-            <div>
-              <span class="text-slate-500 block text-[11px]" data-i18n="batchSarpanchReward">Panchayat Coordinator Pool (₹120/ac):</span>
-              <span id="batchRewardVal" class="text-amber-700 font-bold text-sm tabular-nums">+₹600</span>
-            </div>
-            <div>
-              <span class="text-slate-500 block text-[11px]" data-i18n="batchDieselSaved">Villagers' Diesel Saved (₹4,000/ac):</span>
-              <span id="batchSavingsVal" class="text-emerald-700 font-bold text-sm tabular-nums">₹20,000</span>
-            </div>
-          </div>
-
-          <!-- Submit Batch Button -->
-          <div class="pt-2">
-            <button type="button" onclick="handleSarpanchBatchSubmit(event)" id="btnSubmitBatchEl" class="btn-primary w-full py-2.5 text-xs font-semibold">
-              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-              <span data-i18n="btnSubmitBatch">Submit Panchayat Batch Registration</span>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <button type="button" onclick="addBatchRow()" class="btn-secondary h-11 px-4 text-sm">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span data-i18n="btnAddRow">Add Farmer Row</span>
             </button>
           </div>
 
+          <!-- Batch Totals -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <div>
+              <span class="text-xs text-slate-500 block" data-i18n="batchTotalFarmers">Farmers</span>
+              <span id="batchCountVal" class="text-slate-900 font-bold text-lg tabular-nums">2</span>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 block" data-i18n="batchTotalAcres">Total Area</span>
+              <span id="batchAcresVal" class="text-slate-900 font-bold text-lg tabular-nums">5.0 Acres</span>
+              <span id="batchTonnesVal" class="text-xs text-slate-500 block">(~10.0 Tonnes)</span>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 block" data-i18n="batchSarpanchReward">Panchayat Incentive</span>
+              <span id="batchRewardVal" class="text-slate-900 font-bold text-lg tabular-nums">+₹600</span>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 block" data-i18n="batchDieselSaved">Diesel Saved</span>
+              <span id="batchSavingsVal" class="text-[#15803D] font-bold text-lg tabular-nums">₹20,000</span>
+            </div>
+          </div>
+
+          <button type="button" onclick="handleSarpanchBatchSubmit(event)" id="btnSubmitBatchEl" class="btn-primary w-full">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            <span data-i18n="btnSubmitBatch">Confirm Batch Registration</span>
+          </button>
         </div>
 
       </div>
 
-      <!-- ======================================================== -->
-      <!-- VIEW 2: INDIVIDUAL LANDHOLDER (SINGLE ENTRY WITH REFERRAL)-->
-      <!-- ======================================================== -->
-      <div id="individualViewContainer" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-4">
-        
-        <!-- Registration Form (7 Cols) -->
-        <div class="lg:col-span-7 card-panel p-5 space-y-4">
+      <!-- VIEW 2: INDIVIDUAL FARMER -->
+      <div id="individualViewContainer" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Form Column -->
+        <div class="lg:col-span-7 card-panel p-6 space-y-5">
           <div class="border-b border-slate-200 pb-3">
-            <h3 class="text-sm font-bold text-slate-900" data-i18n="indivCardTitle">Single Landholding Stubble Clearing Registration</h3>
-            <p class="text-xs text-slate-500 mt-0.5" data-i18n="indivCardSub">
-              Register your individual plot for ₹0 mechanical baler clearance and receive a 5% direct revenue share (+₹180/acre).
+            <h2 class="text-base font-bold text-slate-900" data-i18n="indivCardTitle">Register Your Field for Free Pickup</h2>
+            <p class="text-sm text-slate-600 mt-0.5" data-i18n="indivCardSub">
+              Clearing charge is always ₹0, plus you receive ₹180/acre direct cashback.
             </p>
           </div>
 
           <form id="individualBookingForm" onsubmit="handleIndividualSubmit(event)" class="space-y-4">
-            
-            <!-- Target Village -->
+
             <div>
-              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1" data-i18n="labelVillage">
-                Target Village Cluster
+              <label for="indivVillageSelect" class="block text-sm font-semibold text-slate-800 mb-1.5" data-i18n="labelVillage">
+                Select Village
               </label>
               <select id="indivVillageSelect" class="form-select">
-                <!-- Populated dynamically by app.js (defaults to Village Kheri at 16/20 ac) -->
+                <!-- Populated dynamically by app.js -->
               </select>
             </div>
 
-            <!-- Farmer Name & Contact -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1" data-i18n="labelFarmerName">
-                  Landholder Full Name
+                <label for="indivFarmerName" class="block text-sm font-semibold text-slate-800 mb-1.5" data-i18n="labelFarmerName">
+                  Farmer Name
                 </label>
                 <input type="text" id="indivFarmerName" required value="Jagtar Singh" class="form-input" placeholder="e.g. Jagtar Singh">
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1" data-i18n="labelPhone">
-                  Primary Contact Number
+                <label for="indivPhone" class="block text-sm font-semibold text-slate-800 mb-1.5" data-i18n="labelPhone">
+                  Mobile Number
                 </label>
                 <input type="tel" id="indivPhone" required value="+91 98140 99881" class="form-input font-mono-code" placeholder="+91 98140 00000">
               </div>
             </div>
 
-            <!-- Area & Harvest Date -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <div class="flex items-center justify-between mb-1">
-                  <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider" data-i18n="labelAcres">
-                    Paddy Stubble Area (Acres)
-                  </label>
-                  <span class="text-[11px] text-slate-500 font-mono-code">2.0 t/ac yield</span>
-                </div>
+                <label for="indivAcres" class="block text-sm font-semibold text-slate-800 mb-1.5" data-i18n="labelAcres">
+                  Land Area (Acres)
+                </label>
                 <input type="number" id="indivAcres" oninput="updateFarmerValueSwing(this.value)" required min="0.5" max="50" step="0.5" value="5.0" class="form-input font-bold tabular-nums">
               </div>
 
               <div>
-                <div class="flex items-center justify-between mb-1">
-                  <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider" data-i18n="labelHarvestDate">
-                    Crop Harvest Date
-                  </label>
-                  <span class="text-[11px] text-amber-700 font-medium">3-day buffer</span>
-                </div>
+                <label for="indivHarvestDate" class="block text-sm font-semibold text-slate-800 mb-1.5" data-i18n="labelHarvestDate">
+                  Harvest Date (3-day drying rule)
+                </label>
                 <input type="date" id="indivHarvestDate" required class="form-input font-mono-code">
               </div>
             </div>
 
-            <!-- Referred By Input (Only for Individual!) -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider" data-i18n="labelReferredBy">
-                  Referred By (Sarpanch / Neighbor Code)
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="indivReferredBy" class="text-sm font-semibold text-slate-800" data-i18n="labelReferredBy">
+                  Referral Code (Optional)
                 </label>
-                <button type="button" onclick="applySarpanchCode()" class="text-[11px] text-[#143628] hover:underline font-medium" data-i18n="btnApplySarpanchCode">
-                  Use Sarpanch Code (SARPANCH-KHERI)
+                <button type="button" onclick="applySarpanchCode()" class="text-xs text-[#15803D] hover:underline font-semibold" data-i18n="btnApplySarpanchCode">
+                  Use Sarpanch Code
                 </button>
               </div>
               <input type="text" id="indivReferredBy" value="SARPANCH-KHERI" class="form-input font-mono-code uppercase" placeholder="e.g. SARPANCH-KHERI">
-              <p class="text-[11px] text-slate-500 mt-1" data-i18n="referredByHint">
-                Enter your Sarpanch or neighbor's code to credit them with ₹120/acre coordinator incentive. Leave blank if none.
+              <p class="text-xs text-slate-500 mt-1" data-i18n="referredByHint">
+                Credits ₹120/acre to your Sarpanch or referring neighbor.
               </p>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn-primary w-full py-2.5">
-              <i data-lucide="check" class="w-4 h-4"></i>
-              <span data-i18n="btnSubmitBooking">Register Landholding Clearing (₹0 Fee)</span>
+            <button type="submit" class="btn-primary w-full">
+              <i data-lucide="check" class="w-5 h-5"></i>
+              <span data-i18n="btnSubmitBooking">Confirm Free Pickup (₹0 Fee)</span>
             </button>
 
           </form>
         </div>
 
-        <!-- Landholder Financial Impact Summary (5 Cols) -->
-        <div class="lg:col-span-5 card-panel p-5 flex flex-col justify-between space-y-4">
-          
+        <!-- Farmer Savings Summary Column -->
+        <div class="lg:col-span-5 card-panel p-6 flex flex-col justify-between space-y-5">
+
           <div>
-            <div class="border-b border-slate-200 pb-2.5">
-              <h3 class="text-sm font-bold text-slate-900" data-i18n="swingTitle">Landholder Financial Impact</h3>
-              <p class="text-xs text-slate-500 mt-0.5">Zero-fee field clearance plus direct revenue share</p>
+            <div class="border-b border-slate-200 pb-3">
+              <h2 class="text-base font-bold text-slate-900" data-i18n="swingTitle">Your Estimated Savings</h2>
+              <p class="text-sm text-slate-600 mt-0.5">Zero clearing charge plus direct UPI payout.</p>
             </div>
 
-            <div class="space-y-2.5 mt-3 text-xs">
-              <div class="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200">
-                <span class="text-slate-600" data-i18n="swingClearingCost">Field Clearing Fee:</span>
-                <span class="text-emerald-700 font-bold" data-i18n="swingFree">₹0 (Complimentary)</span>
+            <div class="space-y-3 mt-4 text-sm">
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <span class="text-slate-600" data-i18n="swingClearingCost">Field Clearing Fee</span>
+                <span class="text-[#15803D] font-bold" data-i18n="swingFree">₹0 (Free)</span>
               </div>
 
-              <div class="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200">
-                <span class="text-slate-600" data-i18n="swingClearingSaved">Tractor & Fuel Costs Saved:</span>
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <span class="text-slate-600" data-i18n="swingClearingSaved">Tractor & Diesel Saved</span>
                 <span id="swingSavedVal" class="text-slate-900 font-bold tabular-nums">₹20,000</span>
               </div>
 
-              <div class="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200">
-                <span class="text-slate-600" data-i18n="swingCashback">5% Revenue Share Payout:</span>
-                <span id="swingCashVal" class="text-emerald-700 font-bold tabular-nums">+₹900</span>
+              <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                <span class="text-slate-600" data-i18n="swingCashback">Direct Cashback (₹180/ac)</span>
+                <span id="swingCashVal" class="text-[#15803D] font-bold tabular-nums">+₹900</span>
               </div>
 
-              <div class="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200">
-                <span class="text-slate-600">Recoverable Biomass:</span>
-                <span id="swingTonnesVal" class="text-slate-900 font-medium tabular-nums">~10.0 Tonnes Stubble</span>
+              <div class="flex items-center justify-between py-2">
+                <span class="text-slate-600">Estimated Straw</span>
+                <span id="swingTonnesVal" class="text-slate-900 font-medium tabular-nums">~10.0 Tonnes</span>
               </div>
             </div>
           </div>
 
-          <!-- Total Benefit Callout Box -->
-          <div class="p-4 rounded-md bg-emerald-50 border border-emerald-200 text-center space-y-1">
-            <span class="text-xs font-semibold text-emerald-800 uppercase tracking-wider" data-i18n="swingTotalGain">
-              Total Landholder Financial Benefit
+          <div class="p-5 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-center space-y-1">
+            <span class="text-xs font-semibold text-[#166534] uppercase tracking-wide" data-i18n="swingTotalGain">
+              Total Farmer Benefit
             </span>
-            <div id="swingTotalVal" class="text-2xl font-bold text-emerald-700 tabular-nums">
+            <div id="swingTotalVal" class="text-3xl font-bold text-[#15803D] tabular-nums">
               +₹20,900
             </div>
-            <p class="text-[11px] text-slate-500">
-              (₹4,000/acre saved on tractor fuel + ₹180/acre UPI cash share)
+            <p class="text-xs text-slate-600">
+              ₹4,000/ac diesel saved + ₹180/ac cash share
             </p>
           </div>
 
-          <div class="text-[11px] text-slate-500 text-center border-t border-slate-100 pt-2" data-i18n="swingReferralHint">
-            Village Captains and referring neighbors receive ₹120/acre from the coordinator pool.
-          </div>
+          <p class="text-xs text-slate-500 text-center" data-i18n="swingReferralHint">
+            Referring neighbors or Village Captains earn ₹120/acre from the coordinator pool.
+          </p>
 
         </div>
 
@@ -614,76 +517,75 @@
     <!-- ======================================================== -->
     <!-- TAB 3: INDUSTRIAL B2B BUYER DASHBOARD                    -->
     <!-- ======================================================== -->
-    <div id="b2b-tab" class="tab-content space-y-4 hidden">
-      
-      <!-- Sub-header -->
-      <div class="card-panel p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <div id="b2b-tab" class="tab-content space-y-5 hidden">
+
+      <div class="card-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900" data-i18n="b2bTitle">Industrial Biomass Offtake Portal</h2>
-          <p class="text-xs text-slate-500 mt-0.5" data-i18n="b2bSubtitle">
-            Standardized industrial pricing at ₹1,800/tonne for Bio-CNG, thermal power, and briquette manufacturing facilities.
+          <h1 class="text-lg font-bold text-slate-900" data-i18n="b2bTitle">Industrial Biomass Offtake Portal</h1>
+          <p class="text-sm text-slate-600 mt-0.5" data-i18n="b2bSubtitle">
+            Moisture-verified baled straw at ₹1,800/tonne within a 50 km delivery corridor.
           </p>
         </div>
 
-        <div class="flex items-center gap-2 text-xs">
-          <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded text-center">
-            <span class="text-slate-500 text-[10px] block font-medium">Standard Industrial Rate</span>
-            <span class="text-slate-900 font-bold tabular-nums">₹1,800 / t</span>
+        <div class="flex items-center gap-3 text-sm">
+          <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg">
+            <span class="text-slate-500 text-xs block">Standard Rate</span>
+            <span class="text-slate-900 font-bold tabular-nums">₹1,800 / tonne</span>
           </div>
-          <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded text-center">
-            <span class="text-slate-500 text-[10px] block font-medium">Delivery Corridor</span>
-            <span class="text-purple-700 font-bold">≤ 50 km</span>
+          <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg">
+            <span class="text-slate-500 text-xs block">Max Freight</span>
+            <span class="text-slate-900 font-bold">≤ 50 km</span>
           </div>
         </div>
       </div>
 
-      <!-- Offtaker Facilities Strip -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        
-        <div class="card-panel p-3.5 space-y-1.5">
+      <!-- Verified Partner Plants -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div class="card-panel p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-xs text-slate-900">Verbio India Bio-CNG Plant</span>
-            <span class="px-2 py-0.5 rounded text-[10px] bg-purple-50 text-purple-700 border border-purple-200 font-medium">Bio-CNG</span>
+            <span class="font-bold text-sm text-slate-900">Verbio India Bio-CNG</span>
+            <span class="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">Bio-CNG</span>
           </div>
-          <div class="text-xs text-slate-600 space-y-1">
-            <div class="flex justify-between"><span>Location:</span> <span class="font-medium text-slate-900">Lehragaga, Sangrur</span></div>
-            <div class="flex justify-between"><span>Daily Intake:</span> <span class="font-medium text-slate-900 tabular-nums">300 Tonnes / day</span></div>
-            <div class="flex justify-between"><span>Corridor:</span> <span class="font-medium text-emerald-700">34 km (Passes ≤50km)</span></div>
+          <div class="text-sm text-slate-600 space-y-1">
+            <div class="flex justify-between"><span>Location</span> <span class="font-medium text-slate-900">Lehragaga, Sangrur</span></div>
+            <div class="flex justify-between"><span>Daily Intake</span> <span class="font-medium text-slate-900 tabular-nums">300 t / day</span></div>
+            <div class="flex justify-between"><span>Distance</span> <span class="font-medium text-[#15803D]">34 km</span></div>
           </div>
         </div>
 
-        <div class="card-panel p-3.5 space-y-1.5">
+        <div class="card-panel p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-xs text-slate-900">SAEL Biomass Power Plant</span>
-            <span class="px-2 py-0.5 rounded text-[10px] bg-sky-50 text-sky-700 border border-sky-200 font-medium">Thermal Power</span>
+            <span class="font-bold text-sm text-slate-900">SAEL Biomass Power</span>
+            <span class="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">Power Plant</span>
           </div>
-          <div class="text-xs text-slate-600 space-y-1">
-            <div class="flex justify-between"><span>Location:</span> <span class="font-medium text-slate-900">Chhajli, Sunam</span></div>
-            <div class="flex justify-between"><span>Daily Intake:</span> <span class="font-medium text-slate-900 tabular-nums">450 Tonnes / day</span></div>
-            <div class="flex justify-between"><span>Corridor:</span> <span class="font-medium text-emerald-700">41 km (Passes ≤50km)</span></div>
+          <div class="text-sm text-slate-600 space-y-1">
+            <div class="flex justify-between"><span>Location</span> <span class="font-medium text-slate-900">Chhajli, Sunam</span></div>
+            <div class="flex justify-between"><span>Daily Intake</span> <span class="font-medium text-slate-900 tabular-nums">450 t / day</span></div>
+            <div class="flex justify-between"><span>Distance</span> <span class="font-medium text-[#15803D]">41 km</span></div>
           </div>
         </div>
 
-        <div class="card-panel p-3.5 space-y-1.5">
+        <div class="card-panel p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-xs text-slate-900">Malwa Eco-Briquettes</span>
-            <span class="px-2 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 border border-amber-200 font-medium">Eco-Briquette</span>
+            <span class="font-bold text-sm text-slate-900">Malwa Eco-Briquettes</span>
+            <span class="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">Briquettes</span>
           </div>
-          <div class="text-xs text-slate-600 space-y-1">
-            <div class="flex justify-between"><span>Location:</span> <span class="font-medium text-slate-900">Dhanaula, Barnala</span></div>
-            <div class="flex justify-between"><span>Daily Intake:</span> <span class="font-medium text-slate-900 tabular-nums">180 Tonnes / day</span></div>
-            <div class="flex justify-between"><span>Corridor:</span> <span class="font-medium text-emerald-700">28 km (Passes ≤50km)</span></div>
+          <div class="text-sm text-slate-600 space-y-1">
+            <div class="flex justify-between"><span>Location</span> <span class="font-medium text-slate-900">Dhanaula, Barnala</span></div>
+            <div class="flex justify-between"><span>Daily Intake</span> <span class="font-medium text-slate-900 tabular-nums">180 t / day</span></div>
+            <div class="flex justify-between"><span>Distance</span> <span class="font-medium text-[#15803D]">28 km</span></div>
           </div>
         </div>
 
       </div>
 
-      <!-- Bulk Lots Container -->
+      <!-- Available Bulk Lots -->
       <div class="space-y-3">
-        <h3 class="text-sm font-bold text-slate-900" data-i18n="b2bLotTableTitle">
-          Moisture-Verified (&lt;20%) Stubble Lots at Storage Hubs
-        </h3>
-        <div id="b2bLotsContainer" class="grid grid-cols-1 gap-3">
+        <h2 class="text-base font-bold text-slate-900" data-i18n="b2bLotTableTitle">
+          Available Stubble Lots at Storage Hubs (&lt;20% Moisture)
+        </h2>
+        <div id="b2bLotsContainer" class="grid grid-cols-1 gap-4">
           <!-- Rendered dynamically by app.js -->
         </div>
       </div>
@@ -691,25 +593,23 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- TAB 4: UNIT ECONOMICS & LEASE SIMULATOR                  -->
+    <!-- TAB 4: UNIT ECONOMICS & FLEET SIMULATOR                  -->
     <!-- ======================================================== -->
-    <div id="econ-tab" class="tab-content space-y-4 hidden">
-      
-      <!-- Sub-header -->
-      <div class="card-panel p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <div id="econ-tab" class="tab-content space-y-5 hidden">
+
+      <div class="card-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900" data-i18n="econTitle">Unit Economics & Fleet Lease Simulator</h2>
-          <p class="text-xs text-slate-500 mt-0.5" data-i18n="econSubtitle">
-            Predictable ₹400/tonne net margin with heavy machinery capex off-balance-sheet via seasonal leasing.
+          <h1 class="text-lg font-bold text-slate-900" data-i18n="econTitle">Unit Economics & Fleet Simulator</h1>
+          <p class="text-sm text-slate-600 mt-0.5" data-i18n="econSubtitle">
+            Transparent per-acre and per-tonne breakdown using seasonal baler leasing.
           </p>
         </div>
 
-        <!-- Lease Model Toggle -->
-        <div class="flex items-center bg-slate-100 p-1 rounded-md border border-slate-200 text-xs">
-          <button id="btnLeaseSeasonal" onclick="setLeaseDuration('45_DAY_SEASONAL')" class="px-3.5 py-1.5 rounded-md bg-[#143628] text-white font-medium text-xs shadow-sm transition">
+        <div class="inline-flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+          <button id="btnLeaseSeasonal" onclick="setLeaseDuration('45_DAY_SEASONAL')" class="px-4 py-2.5 rounded-md bg-[#15803D] text-white font-semibold text-sm transition">
             <span data-i18n="econToggleSeasonal">45-Day Seasonal (700 ac)</span>
           </button>
-          <button id="btnLeasePeak" onclick="setLeaseDuration('15_DAY_PEAK')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 font-medium text-xs transition">
+          <button id="btnLeasePeak" onclick="setLeaseDuration('15_DAY_PEAK')" class="px-4 py-2.5 rounded-md text-slate-700 hover:text-slate-900 font-semibold text-sm transition">
             <span data-i18n="econTogglePeak">15-Day Peak (240 ac)</span>
           </button>
         </div>
@@ -717,10 +617,8 @@
 
       <!-- Unit Economics Table -->
       <div class="card-panel overflow-hidden">
-        <div class="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-            Standardized 3-Way Payout & Cost Split
-          </span>
+        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <span class="text-sm font-semibold text-slate-800">Per-Acre & Per-Tonne Breakdown</span>
           <span class="text-xs font-medium text-slate-600 font-mono-code">Yield: 2.0 Tonnes / Acre</span>
         </div>
 
@@ -728,67 +626,64 @@
           <table class="enterprise-table">
             <thead>
               <tr>
-                <th>Line Item / Stakeholder</th>
+                <th>Line Item</th>
                 <th>Per Acre (₹)</th>
                 <th>Per Tonne (₹)</th>
-                <th>Cost Basis / Allocation</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="font-medium text-slate-900" data-i18n="tableRowGross">Factory Revenue (Standard Industrial Rate)</td>
+                <td class="font-semibold text-slate-900" data-i18n="tableRowGross">Factory Revenue</td>
                 <td class="font-bold text-slate-900 tabular-nums">+₹3,600</td>
                 <td class="font-bold text-slate-900 tabular-nums">+₹1,800 / t</td>
-                <td class="text-slate-500">100% Gross B2B revenue from Bio-CNG / Power plant</td>
+                <td class="text-slate-600">Standard B2B offtake price from Bio-CNG / Power plants</td>
               </tr>
               <tr>
-                <td class="font-medium text-slate-700" data-i18n="tableRowBaler">Seasonally Leased Baler + Diesel + Twine</td>
-                <td id="econTableBalerRate" class="font-bold text-slate-700 tabular-nums">-₹1,400</td>
-                <td id="econTableBalerPerTonne" class="font-bold text-slate-700 tabular-nums">-₹700 / t</td>
-                <td class="text-slate-500">₹214 lease amortisation + ₹1,186 diesel, twine & operator</td>
+                <td class="font-medium text-slate-800" data-i18n="tableRowBaler">Leased Baler + Diesel + Twine</td>
+                <td id="econTableBalerRate" class="font-bold text-slate-800 tabular-nums">-₹1,400</td>
+                <td id="econTableBalerPerTonne" class="font-bold text-slate-800 tabular-nums">-₹700 / t</td>
+                <td class="text-slate-600">Lease amortisation + diesel, twine & operator OpEx</td>
               </tr>
               <tr>
-                <td class="font-medium text-slate-700" data-i18n="tableRowLogistics">Trolley Transit, Hub Storage & Freight</td>
-                <td class="font-bold text-slate-700 tabular-nums">-₹1,100</td>
-                <td id="econTableLogPerTonne" class="font-bold text-slate-700 tabular-nums">-₹550 / t</td>
-                <td class="text-slate-500">Trolley ₹360 + Hub rent/guard ₹140 + Factory freight ₹600</td>
+                <td class="font-medium text-slate-800" data-i18n="tableRowLogistics">Trolley, Hub Storage & Freight</td>
+                <td class="font-bold text-slate-800 tabular-nums">-₹1,100</td>
+                <td id="econTableLogPerTonne" class="font-bold text-slate-800 tabular-nums">-₹550 / t</td>
+                <td class="text-slate-600">Trolley ₹360 + Hub ₹140 + Factory freight ₹600</td>
               </tr>
               <tr>
-                <td class="font-medium text-emerald-800" data-i18n="tableRowFarmer">Landholder Revenue Share (5% Payout)</td>
-                <td class="font-bold text-emerald-700 tabular-nums">+₹180</td>
-                <td class="font-bold text-emerald-700 tabular-nums">+₹90 / t</td>
-                <td class="text-slate-500">Plus farmer saves ₹4,000/acre in ploughing fuel costs</td>
+                <td class="font-medium text-[#15803D]" data-i18n="tableRowFarmer">Farmer Revenue Share (5%)</td>
+                <td class="font-bold text-[#15803D] tabular-nums">+₹180</td>
+                <td class="font-bold text-[#15803D] tabular-nums">+₹90 / t</td>
+                <td class="text-slate-600">Plus farmer saves ~₹4,000/ac in tractor diesel</td>
               </tr>
               <tr>
-                <td class="font-medium text-amber-800" data-i18n="tableRowCoordinator">Village Coordinator / Referral Pool</td>
-                <td class="font-bold text-amber-700 tabular-nums">+₹120</td>
-                <td class="font-bold text-amber-700 tabular-nums">+₹60 / t</td>
-                <td class="text-slate-500">Paid to Captain (bulk entry) OR neighbor referral (no double-dipping)</td>
+                <td class="font-medium text-slate-800" data-i18n="tableRowCoordinator">Village Coordinator / Referral Pool</td>
+                <td class="font-bold text-slate-800 tabular-nums">+₹120</td>
+                <td class="font-bold text-slate-800 tabular-nums">+₹60 / t</td>
+                <td class="text-slate-600">Single pool for Sarpanch or neighbor referral</td>
               </tr>
-              <tr class="bg-slate-50/80 font-bold border-t border-slate-200">
+              <tr class="bg-[#F0FDF4] font-bold border-t border-slate-200">
                 <td class="text-slate-900" data-i18n="tableRowProfit">Platform Operating Margin</td>
-                <td id="econTableProfitRate" class="text-slate-900 tabular-nums text-sm">+₹800 (22.2%)</td>
-                <td id="econTableProfitPerTonne" class="text-slate-900 tabular-nums text-sm">+₹400 / t</td>
-                <td class="text-emerald-700 font-semibold">Net margin after all machine, logistics & rural payouts</td>
+                <td id="econTableProfitRate" class="text-[#15803D] tabular-nums">+₹800 (22.2%)</td>
+                <td id="econTableProfitPerTonne" class="text-[#15803D] tabular-nums">+₹400 / t</td>
+                <td class="text-[#166534] font-semibold">Net margin after machinery, logistics & rural payouts</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Leased Balers Fleet Simulator Slider -->
-      <div class="card-panel p-5 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
+      <!-- Fleet Simulator -->
+      <div class="card-panel p-6 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
           <div>
-            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-              <i data-lucide="sliders" class="w-4 h-4 text-slate-600"></i>
-              Active Leased Baler Fleet Simulator (1 to 100 Balers)
-            </h3>
-            <p class="text-xs text-slate-500 mt-0.5">Project seasonal acreage, tonnage, emissions prevented, and net operating profit</p>
+            <h2 class="text-base font-bold text-slate-900">Fleet Scale Simulator (1 to 100 Balers)</h2>
+            <p class="text-sm text-slate-600 mt-0.5">Slide to project seasonal acres, emissions avoided, and operating profit.</p>
           </div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs text-slate-500" data-i18n="econSliderUnits">Fleet Size:</span>
-            <span id="fleetBalerCountVal" class="text-sm font-bold text-slate-900 bg-slate-50 px-2.5 py-1 rounded border border-slate-200 tabular-nums">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-slate-600" data-i18n="econSliderUnits">Fleet Size:</span>
+            <span id="fleetBalerCountVal" class="text-base font-bold text-slate-900 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 tabular-nums">
               10 Balers
             </span>
           </div>
@@ -796,44 +691,43 @@
 
         <div class="space-y-2">
           <input type="range" id="fleetBalerSlider" min="1" max="100" value="10" oninput="updateFleetSimulator()">
-          <div class="flex justify-between text-[11px] font-mono-code text-slate-500">
-            <span>1 Unit (Pilot)</span>
-            <span>25 Units</span>
-            <span>50 Units (District Scale)</span>
-            <span>75 Units</span>
-            <span>100 Units (State Scale)</span>
+          <div class="flex justify-between text-xs text-slate-500 font-medium">
+            <span>1 Baler</span>
+            <span>25 Balers</span>
+            <span>50 Balers</span>
+            <span>75 Balers</span>
+            <span>100 Balers</span>
           </div>
         </div>
 
-        <!-- Simulator Result Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-1">
-          <div class="p-2.5 rounded border border-slate-200 bg-slate-50 text-center">
-            <div class="text-[10px] text-slate-500 uppercase font-semibold">Seasonal Area</div>
-            <div id="simAcres" class="text-sm font-bold text-slate-900 tabular-nums mt-0.5">7,000 Acres</div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 pt-1">
+          <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 text-center">
+            <div class="text-xs text-slate-500 font-medium">Seasonal Area</div>
+            <div id="simAcres" class="text-base font-bold text-slate-900 tabular-nums mt-1">7,000 Acres</div>
           </div>
-          <div class="p-2.5 rounded border border-slate-200 bg-slate-50 text-center">
-            <div class="text-[10px] text-slate-500 uppercase font-semibold">Biomass Straw</div>
-            <div id="simTonnes" class="text-sm font-bold text-slate-900 tabular-nums mt-0.5">14,000 Tonnes</div>
+          <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 text-center">
+            <div class="text-xs text-slate-500 font-medium">Straw Baled</div>
+            <div id="simTonnes" class="text-base font-bold text-slate-900 tabular-nums mt-1">14,000 t</div>
           </div>
-          <div class="p-2.5 rounded border border-slate-200 bg-slate-50 text-center">
-            <div class="text-[10px] text-slate-500 uppercase font-semibold">CO₂ Avoided</div>
-            <div id="simCo2" class="text-sm font-bold text-emerald-700 tabular-nums mt-0.5">20,440 t</div>
+          <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 text-center">
+            <div class="text-xs text-slate-500 font-medium">CO₂ Avoided</div>
+            <div id="simCo2" class="text-base font-bold text-[#15803D] tabular-nums mt-1">20,440 t</div>
           </div>
-          <div class="p-2.5 rounded border border-slate-200 bg-slate-50 text-center">
-            <div class="text-[10px] text-slate-500 uppercase font-semibold">PM2.5 Prevented</div>
-            <div id="simPm25" class="text-sm font-bold text-sky-700 tabular-nums mt-0.5">42.0 t</div>
+          <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 text-center">
+            <div class="text-xs text-slate-500 font-medium">PM2.5 Stopped</div>
+            <div id="simPm25" class="text-base font-bold text-slate-900 tabular-nums mt-1">42.0 t</div>
           </div>
-          <div class="p-2.5 rounded border border-slate-200 bg-slate-50 text-center">
-            <div class="text-[10px] text-slate-500 uppercase font-semibold">Farmer Savings</div>
-            <div id="simSavings" class="text-sm font-bold text-slate-900 tabular-nums mt-0.5">₹2.80 Cr</div>
+          <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 text-center">
+            <div class="text-xs text-slate-500 font-medium">Farmer Saved</div>
+            <div id="simSavings" class="text-base font-bold text-slate-900 tabular-nums mt-1">₹2.80 Cr</div>
           </div>
-          <div class="p-2.5 rounded border border-slate-200 bg-slate-50 text-center">
-            <div class="text-[10px] text-slate-500 uppercase font-semibold">Rural Payout</div>
-            <div id="simRuralCash" class="text-sm font-bold text-emerald-700 tabular-nums mt-0.5">₹0.21 Cr</div>
+          <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 text-center">
+            <div class="text-xs text-slate-500 font-medium">Rural Payout</div>
+            <div id="simRuralCash" class="text-base font-bold text-[#15803D] tabular-nums mt-1">₹0.21 Cr</div>
           </div>
-          <div class="p-2.5 rounded border border-emerald-300 bg-emerald-50 text-center">
-            <div class="text-[10px] text-emerald-800 uppercase font-semibold">Operating Profit</div>
-            <div id="simProfit" class="text-sm font-bold text-emerald-800 tabular-nums mt-0.5">₹0.56 Cr</div>
+          <div class="p-3 rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] text-center">
+            <div class="text-xs text-[#166534] font-semibold">Net Profit</div>
+            <div id="simProfit" class="text-base font-bold text-[#15803D] tabular-nums mt-1">₹0.56 Cr</div>
           </div>
         </div>
       </div>
@@ -843,272 +737,240 @@
   </main>
 
   <!-- ======================================================== -->
-  <!-- SLIDE-OVER DETAIL SHEET (LIGHT MODE)                     -->
+  <!-- SLIDE-OVER CLUSTER DETAIL SHEET                          -->
   <!-- ======================================================== -->
   <div id="sheetBackdrop" onclick="closeSlideOverSheet()" class="sheet-backdrop"></div>
-  
+
   <div id="slideOverSheet" class="slide-over-sheet p-6 flex flex-col justify-between overflow-y-auto">
-    
-    <div class="space-y-4">
-      
-      <!-- Sheet Header & Close Button -->
-      <div class="flex items-start justify-between border-b border-slate-200 pb-3">
+    <div class="space-y-5">
+
+      <div class="flex items-start justify-between border-b border-slate-200 pb-4">
         <div>
-          <div class="flex items-center space-x-2">
-            <h3 id="sheetVillageName" class="text-base font-bold text-slate-900">Village Kheri Cluster</h3>
-            <span id="sheetStatusBadge" class="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 id="sheetVillageName" class="text-lg font-bold text-slate-900">Village Kheri Cluster</h3>
+            <span id="sheetStatusBadge" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
               GATHERING DEMAND
             </span>
           </div>
-          <p id="sheetDistrict" class="text-xs text-slate-500 mt-0.5">Sangrur District • Punjab</p>
+          <p id="sheetDistrict" class="text-sm text-slate-500 mt-1">Sangrur District • Punjab</p>
         </div>
 
-        <button onclick="closeSlideOverSheet()" class="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+        <button onclick="closeSlideOverSheet()" class="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- 20-Acre Progress Bar -->
-      <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-md space-y-1.5">
-        <div class="flex items-center justify-between text-xs font-semibold">
-          <span class="text-slate-700" data-i18n="sheetTargetProgress">20-Acre Baler Dispatch Threshold</span>
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+        <div class="flex items-center justify-between text-sm font-semibold">
+          <span class="text-slate-700" data-i18n="sheetTargetProgress">20-Acre Dispatch Threshold</span>
           <span id="sheetProgressText" class="font-mono-code text-slate-900">16 / 20 Acres (80%)</span>
         </div>
-        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-          <div id="sheetProgressBar" class="bg-[#143628] h-2 rounded-full transition-all duration-300" style="width: 80%"></div>
+        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+          <div id="sheetProgressBar" class="bg-[#15803D] h-2.5 rounded-full transition-all duration-300" style="width: 80%"></div>
         </div>
       </div>
 
-      <!-- Buffer & Geofence -->
-      <div class="grid grid-cols-2 gap-2.5 text-xs">
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-md">
-          <div class="text-[11px] text-slate-500 font-medium" data-i18n="sheetDryingTitle">3-Day Drying Buffer</div>
-          <div id="sheetDryingBadge" class="text-xs font-semibold text-emerald-700 mt-0.5" data-i18n="sheetDryingSafe">Moisture Safe (&lt;20%)</div>
-          <div class="text-[11px] text-slate-500 mt-1">Pickup: <span id="sheetPickupDateVal" class="font-mono-code text-slate-900">2026-11-23</span></div>
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-lg">
+          <div class="text-xs text-slate-500 font-medium" data-i18n="sheetDryingTitle">Drying Buffer</div>
+          <div id="sheetDryingBadge" class="font-semibold text-[#15803D] mt-1" data-i18n="sheetDryingSafe">Moisture Safe (&lt;20%)</div>
+          <div class="text-xs text-slate-500 mt-1">Pickup: <span id="sheetPickupDateVal" class="font-mono-code text-slate-900">2026-11-23</span></div>
         </div>
 
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-md">
-          <div class="text-[11px] text-slate-500 font-medium" data-i18n="sheetHubDistance">Storage Hub Distance</div>
-          <div id="sheetHubDistanceVal" class="text-xs font-semibold text-slate-900 mt-0.5">Sangrur Depot (3.2 km)</div>
-          <div class="text-[11px] text-emerald-700 mt-1">≤15 km Geofence PASS</div>
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-lg">
+          <div class="text-xs text-slate-500 font-medium" data-i18n="sheetHubDistance">Nearest Storage Hub</div>
+          <div id="sheetHubDistanceVal" class="font-semibold text-slate-900 mt-1">Sangrur Depot (3.2 km)</div>
+          <div class="text-xs text-[#15803D] mt-1">Within 15 km limit</div>
         </div>
       </div>
 
-      <!-- Assigned Baler -->
-      <div class="p-3 bg-slate-50 border border-slate-200 rounded-md flex items-center justify-between text-xs">
-        <span class="text-slate-600">Assigned Baler Machine:</span>
+      <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between text-sm">
+        <span class="text-slate-600">Assigned Baler</span>
         <span id="sheetAssignedBalerVal" class="font-semibold text-slate-900 font-mono-code">Pending 20-Acre Trigger</span>
       </div>
 
-      <!-- Enrolled Landholdings List -->
-      <div class="space-y-1.5">
-        <div class="text-xs font-semibold text-slate-700 uppercase tracking-wider" data-i18n="sheetFarmersEnrolled">
-          Enrolled Landholdings
+      <div class="space-y-2">
+        <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide" data-i18n="sheetFarmersEnrolled">
+          Enrolled Farmers
         </div>
-        <div id="sheetFarmersList" class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+        <div id="sheetFarmersList" class="space-y-2 max-h-44 overflow-y-auto pr-1">
           <!-- Populated dynamically by app.js -->
         </div>
       </div>
 
-      <!-- 3-Way Settlement Ledger Breakdown Table -->
-      <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-md space-y-1.5 text-xs">
-        <div class="font-semibold text-slate-700 uppercase tracking-wider text-[11px] border-b border-slate-200 pb-1" data-i18n="sheet3WayLedger">
-          Settlement Ledger Breakdown
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-2 text-sm">
+        <div class="font-semibold text-slate-800 border-b border-slate-200 pb-2" data-i18n="sheet3WayLedger">
+          Settlement Ledger
         </div>
-        
         <div class="flex justify-between text-slate-700">
-          <span>Factory Revenue (₹3,600/ac):</span>
+          <span>Factory Revenue</span>
           <span id="sheetLedgerGross" class="font-semibold text-slate-900 tabular-nums">+₹57,600</span>
         </div>
         <div class="flex justify-between text-slate-600">
-          <span>Leased Baler Machine (-₹1,400/ac):</span>
-          <span id="sheetLedgerBaler" class="font-medium text-slate-600 tabular-nums">-₹22,400</span>
+          <span>Leased Baler</span>
+          <span id="sheetLedgerBaler" class="tabular-nums">-₹22,400</span>
         </div>
         <div class="flex justify-between text-slate-600">
-          <span>Transport & Hub Logistics (-₹1,100/ac):</span>
-          <span id="sheetLedgerLogistics" class="font-medium text-slate-600 tabular-nums">-₹17,600</span>
+          <span>Transport & Hub</span>
+          <span id="sheetLedgerLogistics" class="tabular-nums">-₹17,600</span>
         </div>
-        <div class="flex justify-between text-emerald-800">
-          <span>Landholder 5% Payout (+₹180/ac):</span>
-          <span id="sheetLedgerFarmer" class="font-semibold text-emerald-700 tabular-nums">+₹2,880</span>
+        <div class="flex justify-between text-[#15803D]">
+          <span>Farmer 5% Payout</span>
+          <span id="sheetLedgerFarmer" class="font-semibold tabular-nums">+₹2,880</span>
         </div>
-        <div class="flex justify-between text-amber-800">
-          <span>Village Coordinator Pool (+₹120/ac):</span>
-          <span id="sheetLedgerCoord" class="font-semibold text-amber-700 tabular-nums">+₹1,920</span>
+        <div class="flex justify-between text-slate-700">
+          <span>Coordinator Pool</span>
+          <span id="sheetLedgerCoord" class="font-semibold tabular-nums">+₹1,920</span>
         </div>
-        <div class="flex justify-between text-slate-900 font-bold border-t border-slate-200 pt-1">
-          <span>Platform Operating Margin:</span>
-          <span id="sheetLedgerProfit" class="tabular-nums text-slate-900">+₹12,800 (22.2%)</span>
+        <div class="flex justify-between text-slate-900 font-bold border-t border-slate-200 pt-2">
+          <span>Platform Margin</span>
+          <span id="sheetLedgerProfit" class="tabular-nums">+₹12,800 (22.2%)</span>
         </div>
       </div>
 
     </div>
 
-    <!-- Sheet Action Button -->
-    <div class="pt-3 border-t border-slate-200">
-      <button onclick="addFarmerFromSheet()" class="btn-primary w-full text-xs py-2.5">
-        <i data-lucide="plus" class="w-4 h-4"></i>
-        <span data-i18n="sheetAddFarmerBtn">Enroll Farmer to this Cluster</span>
+    <div class="pt-4 border-t border-slate-200 mt-4">
+      <button onclick="addFarmerFromSheet()" class="btn-primary w-full">
+        <i data-lucide="plus" class="w-5 h-5"></i>
+        <span data-i18n="sheetAddFarmerBtn">Add Farmer to this Village</span>
       </button>
     </div>
-
   </div>
 
   <!-- ======================================================== -->
-  <!-- CONFIRMATION & 1-TAP WHATSAPP NOTIFICATION MODAL         -->
+  <!-- FARMER BOOKING CONFIRMATION MODAL                        -->
   <!-- ======================================================== -->
-  <div id="bookingConfirmModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    
-    <div class="bg-white border border-slate-200 rounded-lg max-w-lg w-full p-5 shadow-xl space-y-4">
-      
-      <!-- Modal Header -->
+  <div id="bookingConfirmModal" class="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 shadow-xl space-y-4">
+
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div class="flex items-center space-x-2">
-          <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#F0FDF4] border border-[#BBF7D0] flex items-center justify-center text-[#15803D]">
             <i data-lucide="check" class="w-4 h-4"></i>
           </div>
-          <h3 class="font-bold text-sm text-slate-900" data-i18n="modalConfirmTitle">Registration Confirmed</h3>
+          <h3 class="font-bold text-base text-slate-900" data-i18n="modalConfirmTitle">Registration Confirmed</h3>
         </div>
-        <button onclick="closeBookingConfirmationModal()" class="text-slate-400 hover:text-slate-600">
-          <i data-lucide="x" class="w-4 h-4"></i>
+        <button onclick="closeBookingConfirmationModal()" class="p-1.5 text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- 20-Acre Threshold Achieved Alert -->
-      <div id="modalThresholdAlert" class="p-3.5 rounded bg-emerald-50 border border-emerald-200 space-y-1">
-        <div class="flex items-center space-x-1.5 text-emerald-800 font-bold text-xs">
-          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-700"></i>
-          <span data-i18n="modalThresholdReached">20-Acre Aggregation Threshold Achieved</span>
+      <div id="modalThresholdAlert" class="p-4 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] space-y-1">
+        <div class="flex items-center gap-2 text-[#15803D] font-bold text-sm">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span data-i18n="modalThresholdReached">20-Acre Threshold Reached — Baler Dispatched</span>
         </div>
-        <p class="text-xs text-emerald-700" data-i18n="modalThresholdSub">
-          Leased industrial baler automatically assigned and dispatched to this cluster at ₹0 fee.
+        <p class="text-xs text-[#166534]" data-i18n="modalThresholdSub">
+          An industrial baler has been automatically assigned to this village at ₹0 fee.
         </p>
-        <div class="text-xs text-slate-800 font-medium mt-1">
-          Machine Assigned: <span id="modalBalerAssignedName" class="font-bold font-mono-code text-slate-900">BALER-PB-03</span> (Operator: Satnam Singh)
+        <div class="text-sm text-slate-900 font-medium pt-1">
+          Machine: <span id="modalBalerAssignedName" class="font-bold font-mono-code">BALER-PB-03</span>
         </div>
       </div>
 
-      <!-- Booking Details Summary -->
-      <div class="p-3.5 bg-slate-50 border border-slate-200 rounded text-xs space-y-1.5">
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm space-y-2">
         <div class="flex justify-between">
-          <span class="text-slate-500">Landholder:</span>
+          <span class="text-slate-500">Farmer</span>
           <span id="modalFarmerName" class="font-semibold text-slate-900">Jagtar Singh</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500">Stubble Area:</span>
+          <span class="text-slate-500">Area</span>
           <span id="modalAcres" class="font-semibold text-slate-900 tabular-nums">5.0 Acres (~10.0 Tonnes)</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500">Target Village:</span>
+          <span class="text-slate-500">Village</span>
           <span id="modalVillage" class="font-semibold text-slate-900">Village Kheri (Sangrur)</span>
         </div>
-        <div class="flex justify-between items-center pt-1.5 border-t border-slate-200">
-          <span class="text-slate-500" data-i18n="modalReferralCodeLabel">Assigned Referral Identifier:</span>
-          <span id="modalRefCode" class="px-2 py-0.5 rounded bg-slate-200 text-slate-900 font-mono-code font-bold text-xs">KHER-950</span>
+        <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+          <span class="text-slate-500" data-i18n="modalReferralCodeLabel">Referral Code</span>
+          <span id="modalRefCode" class="px-2.5 py-1 rounded bg-slate-200 text-slate-900 font-mono-code font-bold text-xs">KHER-950</span>
         </div>
       </div>
 
-      <!-- Direct WhatsApp Notification Preview -->
       <div class="space-y-1.5">
-        <div class="text-xs font-semibold text-slate-700 flex items-center space-x-1" data-i18n="modalWhatsAppTitle">
-          <i data-lucide="message-square" class="w-3.5 h-3.5 text-slate-500"></i>
-          <span>Direct WhatsApp Notification</span>
-        </div>
-        <div id="modalWaPreviewText" class="p-3 rounded bg-slate-50 border border-slate-200 text-xs text-slate-700 font-mono whitespace-pre-wrap leading-relaxed">
-          <!-- WhatsApp text in Punjabi & English -->
-        </div>
+        <div class="text-xs font-semibold text-slate-600" data-i18n="modalWhatsAppTitle">WhatsApp Receipt Preview</div>
+        <div id="modalWaPreviewText" class="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 font-mono whitespace-pre-wrap leading-relaxed"></div>
       </div>
 
-      <!-- Modal Actions -->
-      <div class="flex items-center space-x-2 pt-2">
-        <button id="modalWaShareBtn" class="btn-primary flex-1 text-xs py-2">
-          <i data-lucide="share" class="w-3.5 h-3.5"></i>
-          <span data-i18n="modalWhatsAppBtn">Share via WhatsApp</span>
+      <div class="flex items-center gap-3 pt-2">
+        <button id="modalWaShareBtn" class="btn-primary flex-1">
+          <i data-lucide="share" class="w-4 h-4"></i>
+          <span data-i18n="modalWhatsAppBtn">Share on WhatsApp</span>
         </button>
-        <button onclick="closeBookingConfirmationModal()" class="btn-secondary text-xs py-2 px-4" data-i18n="modalDoneBtn">
+        <button onclick="closeBookingConfirmationModal()" class="btn-secondary px-5 h-12" data-i18n="modalDoneBtn">
           Close
         </button>
       </div>
 
     </div>
-
   </div>
 
   <!-- ======================================================== -->
-  <!-- SARPANCH PANCHAYAT BATCH CONFIRMATION MODAL              -->
+  <!-- SARPANCH BATCH CONFIRMATION MODAL                        -->
   <!-- ======================================================== -->
-  <div id="sarpanchBatchModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white border border-slate-200 rounded-lg max-w-lg w-full p-5 shadow-xl space-y-4">
-      
-      <!-- Modal Header -->
+  <div id="sarpanchBatchModal" class="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 shadow-xl space-y-4">
+
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div class="flex items-center space-x-2">
-          <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#F0FDF4] border border-[#BBF7D0] flex items-center justify-center text-[#15803D]">
             <i data-lucide="check-check" class="w-4 h-4"></i>
           </div>
-          <h3 class="font-bold text-sm text-slate-900" data-i18n="batchModalTitle">Panchayat Batch Registered Successfully</h3>
+          <h3 class="font-bold text-base text-slate-900" data-i18n="batchModalTitle">Panchayat Batch Registered</h3>
         </div>
-        <button onclick="closeSarpanchBatchModal()" class="text-slate-400 hover:text-slate-600">
-          <i data-lucide="x" class="w-4 h-4"></i>
+        <button onclick="closeSarpanchBatchModal()" class="p-1.5 text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- 20-Acre Threshold Achieved Alert -->
-      <div id="sarpanchThresholdAlert" class="p-3.5 rounded bg-emerald-50 border border-emerald-200 space-y-1">
-        <div class="flex items-center space-x-1.5 text-emerald-800 font-bold text-xs">
-          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-700"></i>
-          <span data-i18n="modalThresholdReached">20-Acre Aggregation Threshold Achieved</span>
+      <div id="sarpanchThresholdAlert" class="p-4 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] space-y-1">
+        <div class="flex items-center gap-2 text-[#15803D] font-bold text-sm">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span data-i18n="modalThresholdReached">20-Acre Threshold Reached — Baler Dispatched</span>
         </div>
-        <p class="text-xs text-emerald-700" data-i18n="modalThresholdSub">
-          Leased industrial baler automatically assigned and dispatched to this cluster at ₹0 fee.
+        <p class="text-xs text-[#166534]" data-i18n="modalThresholdSub">
+          An industrial baler has been automatically assigned to this village at ₹0 fee.
         </p>
-        <div class="text-xs text-slate-800 font-medium mt-1">
-          Machine Assigned: <span id="sarpanchBalerAssignedName" class="font-bold font-mono-code text-slate-900">BALER-PB-03</span> (Operator: Kulwinder Singh)
+        <div class="text-sm text-slate-900 font-medium pt-1">
+          Machine: <span id="sarpanchBalerAssignedName" class="font-bold font-mono-code">BALER-PB-03</span>
         </div>
       </div>
 
-      <!-- Batch Details Summary -->
-      <div class="p-3.5 bg-slate-50 border border-slate-200 rounded text-xs space-y-1.5">
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm space-y-2">
         <div class="flex justify-between">
-          <span class="text-slate-500">Village Cluster:</span>
+          <span class="text-slate-500">Village</span>
           <span id="sarpanchModalVillage" class="font-semibold text-slate-900">Village Kheri (Sangrur)</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500">Farmers Enrolled:</span>
-          <span id="sarpanchModalCount" class="font-semibold text-slate-900 tabular-nums">2 Landholders</span>
+          <span class="text-slate-500">Farmers Enrolled</span>
+          <span id="sarpanchModalCount" class="font-semibold text-slate-900 tabular-nums">2 Farmers</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500">Batch Stubble Area:</span>
+          <span class="text-slate-500">Total Area</span>
           <span id="sarpanchModalAcres" class="font-semibold text-slate-900 tabular-nums">5.0 Acres (~10.0 Tonnes)</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500">Panchayat Coordinator Incentive:</span>
-          <span id="sarpanchModalReward" class="font-semibold text-amber-700 tabular-nums">+₹600 (+₹120/ac)</span>
+          <span class="text-slate-500">Panchayat Incentive</span>
+          <span id="sarpanchModalReward" class="font-semibold text-slate-900 tabular-nums">+₹600</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500">Collective Farmer Diesel Saved:</span>
-          <span id="sarpanchModalSavings" class="font-semibold text-emerald-700 tabular-nums">₹20,000</span>
+          <span class="text-slate-500">Collective Diesel Saved</span>
+          <span id="sarpanchModalSavings" class="font-semibold text-[#15803D] tabular-nums">₹20,000</span>
         </div>
       </div>
 
-      <!-- Direct WhatsApp Announcement Preview -->
       <div class="space-y-1.5">
-        <div class="text-xs font-semibold text-slate-700 flex items-center space-x-1" data-i18n="modalWhatsAppTitle">
-          <i data-lucide="message-square" class="w-3.5 h-3.5 text-slate-500"></i>
-          <span>Broadcast Announcement to Village WhatsApp Group</span>
-        </div>
-        <div id="sarpanchWaPreviewText" class="p-3 rounded bg-slate-50 border border-slate-200 text-xs text-slate-700 font-mono whitespace-pre-wrap leading-relaxed">
-          <!-- WhatsApp text in Punjabi & English -->
-        </div>
+        <div class="text-xs font-semibold text-slate-600" data-i18n="modalWhatsAppTitle">WhatsApp Group Announcement</div>
+        <div id="sarpanchWaPreviewText" class="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 font-mono whitespace-pre-wrap leading-relaxed"></div>
       </div>
 
-      <!-- Modal Actions -->
-      <div class="flex items-center space-x-2 pt-2">
-        <button id="sarpanchWaShareBtn" class="w-full inline-flex items-center justify-center space-x-2 rounded-md bg-[#25D366] hover:bg-[#20ba59] text-white font-semibold text-xs py-2 px-3 shadow-xs transition">
-          <i data-lucide="share" class="w-3.5 h-3.5"></i>
-          <span>Broadcast Announcement on WhatsApp</span>
+      <div class="flex items-center gap-3 pt-2">
+        <button id="sarpanchWaShareBtn" class="btn-primary flex-1">
+          <i data-lucide="share" class="w-4 h-4"></i>
+          <span>Share on WhatsApp</span>
         </button>
-        <button onclick="closeSarpanchBatchModal()" class="btn-secondary text-xs py-2 px-4" data-i18n="modalDoneBtn">
+        <button onclick="closeSarpanchBatchModal()" class="btn-secondary px-5 h-12" data-i18n="modalDoneBtn">
           Close
         </button>
       </div>
@@ -1116,17 +978,11 @@
     </div>
   </div>
 
-  <!-- Enterprise Minimal Footer -->
-  <footer class="border-t border-slate-200 bg-white py-3.5 px-6 text-xs text-slate-500">
+  <!-- Minimal Footer -->
+  <footer class="border-t border-slate-200 bg-white py-4 px-6 text-xs text-slate-500">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-      <div class="flex items-center space-x-2">
-        <span class="font-semibold text-slate-900">ParaliSetu [ਪਰਾਲੀਸੇਤੂ 1.0]</span>
-        <span>•</span>
-        <span>AgriTech & Rural Biomass Aggregation Logistics</span>
-      </div>
-      <div class="font-mono-code text-[11px] text-slate-500">
-        Punjab & Haryana Biomass Corridor
-      </div>
+      <span class="font-semibold text-slate-800">ParaliSetu — Punjab & Haryana Biomass Logistics</span>
+      <span>Zero-Cost Farmer Stubble Clearing</span>
     </div>
   </footer>
 
