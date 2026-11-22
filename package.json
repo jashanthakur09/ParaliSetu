@@ -1,0 +1,22 @@
+{
+  "name": "paralisetu",
+  "version": "1.0.0",
+  "description": "Satellite-Guided Stubble Aggregation & Automated Rural Dispatch Engine",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node test_backend.js"
+  },
+  "keywords": [
+    "agritech",
+    "climatetech",
+    "nasa-firms",
+    "stubble-burning",
+    "parali",
+    "punjab",
+    "viirs",
+    "bio-cng"
+  ],
+  "author": "InfiniteLoop (Jashan Thakur, Prakul Thakur, Sikand Arora, Ruchir Sharma, Tanish Kinger)",
+  "license": "MIT"
+}

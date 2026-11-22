@@ -1,0 +1,97 @@
+{
+  "hubs": [
+    {
+      "id": "HUB-SANGRUR-01",
+      "name": "Sangrur Central Aggregation Hub",
+      "location": "Bhawanigarh Bypass, Sangrur",
+      "latitude": 30.2520,
+      "longitude": 75.8750,
+      "capacityTonnes": 15000,
+      "currentStockTonnes": 4200,
+      "maxRadiusKm": 15,
+      "status": "OPERATIONAL",
+      "manager": "Gurpreet Singh",
+      "contact": "+91 98765 43210"
+    },
+    {
+      "id": "HUB-PATIALA-02",
+      "name": "Nabha Agro Logistics Depot",
+      "location": "Patiala-Nabha Road, Nabha",
+      "latitude": 30.3680,
+      "longitude": 76.1420,
+      "capacityTonnes": 12000,
+      "currentStockTonnes": 3800,
+      "maxRadiusKm": 15,
+      "status": "OPERATIONAL",
+      "manager": "Harmanpreet Kaur",
+      "contact": "+91 98765 43211"
+    },
+    {
+      "id": "HUB-MANSA-03",
+      "name": "Budhlada Southern Hub",
+      "location": "Bhikhi Road, Mansa",
+      "latitude": 29.9920,
+      "longitude": 75.4120,
+      "capacityTonnes": 10000,
+      "currentStockTonnes": 2100,
+      "maxRadiusKm": 15,
+      "status": "OPERATIONAL",
+      "manager": "Baldev Singh",
+      "contact": "+91 98765 43212"
+    },
+    {
+      "id": "HUB-LUDHIANA-04",
+      "name": "Jagraon Stubble Terminal",
+      "location": "GT Road, Jagraon, Ludhiana",
+      "latitude": 30.7950,
+      "longitude": 75.4850,
+      "capacityTonnes": 18000,
+      "currentStockTonnes": 6500,
+      "maxRadiusKm": 15,
+      "status": "OPERATIONAL",
+      "manager": "Maninder Singh",
+      "contact": "+91 98765 43213"
+    }
+  ],
+  "buyers": [
+    {
+      "id": "BUYER-VERBIO-01",
+      "name": "Verbio India Bio-CNG / CBG Plant",
+      "type": "Bio-CNG",
+      "location": "Lehragaga, Sangrur, Punjab",
+      "latitude": 29.9320,
+      "longitude": 75.8210,
+      "dailyDemandTonnes": 300,
+      "ratePerTonne": 1800,
+      "maxDeliveryDistanceKm": 50,
+      "certifiedBuyer": true,
+      "totalPurchasedTonnes": 34200
+    },
+    {
+      "id": "BUYER-SAEL-02",
+      "name": "SAEL Biomass Power Plant",
+      "type": "Biomass Power",
+      "location": "Chhajli, Sunam, Punjab",
+      "latitude": 30.0820,
+      "longitude": 75.7640,
+      "dailyDemandTonnes": 450,
+      "ratePerTonne": 1800,
+      "maxDeliveryDistanceKm": 50,
+      "certifiedBuyer": true,
+      "totalPurchasedTonnes": 52100
+    },
+    {
+      "id": "BUYER-MALWA-03",
+      "name": "Malwa Green Energy Pvt Ltd",
+      "type": "Bio-Pellet & Briquette",
+      "location": "Dhanaula Road, Barnala",
+      "latitude": 30.3420,
+      "longitude": 75.5210,
+      "dailyDemandTonnes": 200,
+      "ratePerTonne": 1800,
+      "maxDeliveryDistanceKm": 50,
+      "certifiedBuyer": true,
+      "totalPurchasedTonnes": 18900
+    }
+  ]
+}
