@@ -225,7 +225,314 @@ function saveClientState() {
   } catch (e) {}
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// =============================================================
+// Supabase Live Database Integration & Credentials
+// =============================================================
+const SUPABASE_URL = "https://gmxclrkoistbsgenqxxt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Br_Fs5Wm61pMhk0AhaF5CQ_t1bYvGK3";
+
+let supabaseClient = null;
+
+function getSupabaseClient() {
+  if (!supabaseClient && window.supabase && typeof window.supabase.createClient === 'function') {
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log('[Supabase] Initialized client for', SUPABASE_URL);
+    } catch (err) {
+      console.warn('[Supabase] Initialization error:', err);
+    }
+  }
+  return supabaseClient;
+}
+
+// -------------------------------------------------------------
+// Requirement 4: NASA FIRMS Map Key Telemetry Loader
+// -------------------------------------------------------------
+async function loadNasaFirmsHotspots(apiKey) {
+  if (!apiKey || !apiKey.trim()) return false;
+  const trimmedKey = apiKey.trim();
+
+  // 1. Try local server proxy sync endpoint
+  try {
+    const resp = await fetch('/api/firms/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey: trimmedKey })
+    });
+    const json = await resp.json();
+    if (json && json.hotspots && json.hotspots.length > 0) {
+      clientState.hotspots = json.hotspots.map((h, i) => ({
+        id: h.id || `NASA-${i + 1}`,
+        lat: parseFloat(h.latitude || h.lat),
+        lng: parseFloat(h.longitude || h.lng || h.lon),
+        frp: parseFloat(h.frp || 25),
+        village: h.village || 'Active Detection',
+        district: h.district || 'Punjab',
+        brightTemp: parseFloat(h.bright_ti4 || h.brightTemp || 345)
+      }));
+      if (leafletMap) updateLeafletMarkers();
+      console.log(`[NASA FIRMS] Loaded ${clientState.hotspots.length} live satellite hotspots via backend.`);
+      return true;
+    }
+  } catch (e) {}
+
+  // 2. Direct NASA FIRMS CSV fetch
+  try {
+    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${trimmedKey}/VIIRS_SNPP_NRT/73,29,77,33/1`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const text = await res.text();
+      const lines = text.trim().split('\n');
+      if (lines.length > 1 && !lines[0].toLowerCase().includes('invalid')) {
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const latIdx = headers.indexOf('latitude');
+        const lonIdx = headers.indexOf('longitude');
+        const frpIdx = headers.indexOf('frp');
+        const brightIdx = headers.indexOf('bright_ti4');
+
+        if (latIdx !== -1 && lonIdx !== -1) {
+          const parsed = [];
+          for (let i = 1; i < lines.length && parsed.length < 50; i++) {
+            const parts = lines[i].split(',');
+            const lat = parseFloat(parts[latIdx]);
+            const lng = parseFloat(parts[lonIdx]);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              parsed.push({
+                id: `NASA-${i}`,
+                lat,
+                lng,
+                frp: frpIdx !== -1 ? parseFloat(parts[frpIdx]) || 25 : 25,
+                village: 'Satellite Hotspot',
+                district: 'Punjab Area',
+                brightTemp: brightIdx !== -1 ? parseFloat(parts[brightIdx]) || 345 : 345
+              });
+            }
+          }
+          if (parsed.length > 0) {
+            clientState.hotspots = parsed;
+            if (leafletMap) updateLeafletMarkers();
+            console.log(`[NASA FIRMS] Direct loaded ${parsed.length} live satellite hotspots.`);
+            return true;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[NASA FIRMS] Direct fetch notice:', e);
+  }
+
+  console.log('[NASA FIRMS] Using seeded baseline hotspots.');
+  clientState.hotspots = JSON.parse(JSON.stringify(SEEDED_STATE.hotspots));
+  return false;
+}
+
+// -------------------------------------------------------------
+// Requirement 1: Live Supabase Tables Fetcher on Load
+// -------------------------------------------------------------
+async function loadSupabaseData() {
+  const sb = getSupabaseClient();
+  if (!sb) {
+    console.warn('[Supabase] Client not available yet, using baseline seeded data.');
+    return;
+  }
+
+  try {
+    console.log('[Supabase] Synchronizing live tables from database...');
+
+    // 1. Fetch app_settings (check for nasa_firms_map_key)
+    try {
+      const { data: settingsData, error: settingsErr } = await sb.from('app_settings').select('*');
+      if (settingsErr) {
+        console.warn('[Supabase] app_settings notice:', settingsErr.message);
+      } else if (settingsData && settingsData.length > 0) {
+        let firmsKey = null;
+        for (const row of settingsData) {
+          if (row.key === 'nasa_firms_map_key' || row.setting_key === 'nasa_firms_map_key' || row.name === 'nasa_firms_map_key') {
+            firmsKey = row.value || row.setting_value || row.val;
+          } else if (row.nasa_firms_map_key) {
+            firmsKey = row.nasa_firms_map_key;
+          }
+        }
+        if (firmsKey && firmsKey.trim()) {
+          console.log('[Supabase] Found nasa_firms_map_key in app_settings. Loading NASA FIRMS telemetry...');
+          await loadNasaFirmsHotspots(firmsKey.trim());
+        } else {
+          console.log('[Supabase] No nasa_firms_map_key found; falling back to seeded hotspots.');
+        }
+      }
+    } catch (e) {
+      console.warn('[Supabase] Error reading app_settings:', e);
+    }
+
+    // 2. Fetch storage_hubs
+    try {
+      const { data: hubsData, error: hubsErr } = await sb.from('storage_hubs').select('*');
+      if (hubsErr) {
+        console.warn('[Supabase] storage_hubs notice:', hubsErr.message);
+      } else if (hubsData && hubsData.length > 0) {
+        clientState.hubs = hubsData.map(h => ({
+          id: h.id || `HUB-${h.name}`,
+          name: h.name || 'Storage Hub',
+          lat: parseFloat(h.lat ?? h.latitude ?? 30.25),
+          lng: parseFloat(h.lng ?? h.longitude ?? h.lon ?? 75.87),
+          capacityTonnes: parseFloat(h.capacity_tonnes ?? h.capacityTonnes ?? 15000),
+          currentStockTonnes: parseFloat(h.current_stock_tonnes ?? h.currentStockTonnes ?? 4800),
+          maxRadiusKm: parseFloat(h.max_radius_km ?? h.maxRadiusKm ?? 15)
+        }));
+      }
+    } catch (e) {
+      console.warn('[Supabase] Error reading storage_hubs:', e);
+    }
+
+    // 3. Fetch industrial_buyers
+    try {
+      const { data: buyersData, error: buyersErr } = await sb.from('industrial_buyers').select('*');
+      if (buyersErr) {
+        console.warn('[Supabase] industrial_buyers notice:', buyersErr.message);
+      } else if (buyersData && buyersData.length > 0) {
+        clientState.buyers = buyersData.map(b => ({
+          id: b.id || `BUYER-${b.name}`,
+          name: b.name || 'Industrial Buyer',
+          type: b.type || 'Bio-CNG',
+          lat: parseFloat(b.lat ?? b.latitude ?? 29.93),
+          lng: parseFloat(b.lng ?? b.longitude ?? b.lon ?? 75.82),
+          dailyDemand: parseFloat(b.daily_demand ?? b.dailyDemand ?? b.daily_demand_tonnes ?? 300),
+          ratePerTonne: parseFloat(b.rate_per_tonne ?? b.ratePerTonne ?? 1800),
+          maxRadiusKm: parseFloat(b.max_radius_km ?? b.maxRadiusKm ?? 50)
+        }));
+      }
+    } catch (e) {
+      console.warn('[Supabase] Error reading industrial_buyers:', e);
+    }
+
+    // 4. Fetch leased_balers
+    try {
+      const { data: balersData, error: balersErr } = await sb.from('leased_balers').select('*');
+      if (balersErr) {
+        console.warn('[Supabase] leased_balers notice:', balersErr.message);
+      } else if (balersData && balersData.length > 0) {
+        clientState.balers = balersData.map(b => {
+          const rawSt = (b.status || 'IDLE').toString();
+          const isDispatched = rawSt.toLowerCase() === 'dispatched';
+          return {
+            id: b.id,
+            model: b.model || 'Heavy Baler',
+            operator: b.operator || 'Operator',
+            phone: b.phone || '',
+            status: isDispatched ? 'DISPATCHED' : 'IDLE',
+            rawStatus: rawSt,
+            assignedClusterId: b.assigned_cluster_id ?? b.assignedClusterId ?? null,
+            lat: parseFloat(b.lat ?? b.latitude ?? 30.25),
+            lng: parseFloat(b.lng ?? b.longitude ?? b.lon ?? 75.87)
+          };
+        });
+      }
+    } catch (e) {
+      console.warn('[Supabase] Error reading leased_balers:', e);
+    }
+
+    // 5. Fetch bulk_lots
+    try {
+      const { data: lotsData, error: lotsErr } = await sb.from('bulk_lots').select('*');
+      if (lotsErr) {
+        console.warn('[Supabase] bulk_lots notice:', lotsErr.message);
+      } else if (lotsData && lotsData.length > 0) {
+        clientState.lots = lotsData.map(l => {
+          const tonnes = parseFloat(l.tonnes ?? 0);
+          const rawSt = (l.status || '').toString().toLowerCase();
+          const isSold = rawSt === 'sold' || rawSt === 'settled';
+          return {
+            id: l.id,
+            hubName: l.hub_name ?? l.hubName ?? 'Regional Storage Depot',
+            village: l.village ?? l.village_name ?? l.villageName ?? 'Village Lot',
+            tonnes: tonnes,
+            acres: parseFloat(l.acres ?? l.acres_equivalent ?? l.acresEquivalent ?? (tonnes ? tonnes / 2 : 20)),
+            moisture: parseFloat(l.moisture ?? l.moisture_percent ?? l.moisturePercent ?? 14.0),
+            value: parseFloat(l.value ?? l.lot_value ?? l.lotValue ?? (tonnes ? tonnes * 1800 : 72000)),
+            buyerDistance: l.buyer_distance ?? l.buyerDistance ?? l.distance_to_buyer_km ?? '34 km (≤50km PASS)',
+            status: isSold ? 'Sold' : (l.status || 'AVAILABLE')
+          };
+        });
+      }
+    } catch (e) {
+      console.warn('[Supabase] Error reading bulk_lots:', e);
+    }
+
+    // 6. Fetch bookings
+    let bookingsList = [];
+    try {
+      const { data: bookingsData, error: bookingsErr } = await sb.from('bookings').select('*');
+      if (bookingsErr) {
+        console.warn('[Supabase] bookings notice:', bookingsErr.message);
+      } else if (bookingsData && Array.isArray(bookingsData)) {
+        bookingsList = bookingsData.map(b => ({
+          id: b.id,
+          villageId: b.village_id ?? b.villageId ?? b.cluster_id ?? b.clusterId,
+          villageName: b.village_name ?? b.villageName ?? b.village,
+          farmerName: b.farmer_name ?? b.farmerName,
+          phone: b.phone,
+          acres: parseFloat(b.acres ?? 0),
+          strawTonnes: parseFloat(b.straw_tonnes ?? b.strawTonnes ?? (b.acres * 2.0)),
+          harvestDate: b.harvest_date ?? b.harvestDate,
+          moisturePercent: parseFloat(b.moisture_percent ?? b.moisturePercent ?? 14.5),
+          referralCode: b.referral_code ?? b.referralCode,
+          referredBy: b.referred_by ?? b.referredBy ?? null,
+          status: b.status || 'POOLED'
+        }));
+      }
+    } catch (e) {
+      console.warn('[Supabase] Error reading bookings:', e);
+    }
+
+    // 7. Fetch village_clusters
+    try {
+      const { data: clustersData, error: clustersErr } = await sb.from('village_clusters').select('*');
+      if (clustersErr) {
+        console.warn('[Supabase] village_clusters notice:', clustersErr.message);
+      } else if (clustersData && clustersData.length > 0) {
+        clientState.clusters = clustersData.map(c => {
+          const clusterBookings = bookingsList.filter(b => 
+            b.villageId === c.id || 
+            b.villageName === c.name || 
+            b.villageName?.toLowerCase() === c.name?.toLowerCase()
+          );
+          const pooled = parseFloat(c.pooled_acres ?? c.pooledAcres ?? c.acres ?? 0);
+          const rawStatus = (c.status || '').toString().toLowerCase();
+          const isDispatched = rawStatus === 'dispatched' || pooled >= 20.0;
+          return {
+            id: c.id,
+            name: c.name,
+            district: c.district || 'Punjab',
+            lat: parseFloat(c.lat ?? c.latitude ?? 30.25),
+            lng: parseFloat(c.lng ?? c.longitude ?? c.lon ?? 75.84),
+            targetAcres: parseFloat(c.target_acres ?? c.targetAcres ?? 20.0),
+            pooledAcres: pooled,
+            strawTonnes: parseFloat(c.straw_tonnes ?? c.strawTonnes ?? (pooled * 2.0)),
+            status: isDispatched ? 'DISPATCHED' : 'GATHERING',
+            nearestHubName: c.nearest_hub_name ?? c.nearestHubName ?? 'Sangrur Central Depot',
+            hubDistanceKm: parseFloat(c.hub_distance_km ?? c.hubDistanceKm ?? 3.2),
+            assignedBalerId: c.baler ?? c.assigned_baler_id ?? c.assignedBalerId ?? (isDispatched ? 'BALER-PB-03' : null),
+            earliestPickupDate: c.earliest_pickup_date ?? c.earliestPickupDate ?? '2026-11-23',
+            isMoistureSafe: c.is_moisture_safe ?? c.isMoistureSafe ?? true,
+            enrolledFarmers: clusterBookings.length > 0 ? clusterBookings : (c.enrolled_farmers ?? c.enrolledFarmers ?? [])
+          };
+        });
+      }
+    } catch (e) {
+      console.warn('[Supabase] Error reading village_clusters:', e);
+    }
+
+    // Re-render UI views with updated data
+    renderAllViews();
+    if (leafletMap) updateLeafletMarkers();
+    populateVillageDropdown();
+    console.log('[Supabase] Live database sync complete.');
+  } catch (err) {
+    console.warn('[Supabase] Sync error, continuing with cached/seeded state:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   if (window.lucide) window.lucide.createIcons();
 
   // Set default harvest date (4 days ago) for individual booking form
@@ -256,6 +563,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (indivAcresInput) {
     indivAcresInput.addEventListener('input', () => updateFarmerValueSwing(parseFloat(indivAcresInput.value) || 0));
   }
+
+  // Connect to Supabase and fetch live database tables
+  await loadSupabaseData();
 });
 
 // -------------------------------------------------------------
@@ -898,6 +1208,165 @@ function updateFarmerValueSwing(acresVal) {
   if (elTonnes) elTonnes.textContent = `~${(acres * 2.0).toFixed(1)} Tonnes Stubble`;
 }
 
+// =============================================================
+// Requirement 2: Core Booking Submission & Supabase Sync
+// =============================================================
+async function submitBooking(payload) {
+  let bookingData = {};
+  if (payload && payload.preventDefault) {
+    payload.preventDefault();
+    const isIndividual = currentBookingMode === 'farmer';
+    const villageId = document.getElementById(isIndividual ? 'indivVillageSelect' : 'captainVillageSelect')?.value || 'VIL-KHERI';
+    const farmerName = document.getElementById(isIndividual ? 'indivFarmerName' : 'bookFarmerName')?.value || 'Farmer';
+    const phone = document.getElementById(isIndividual ? 'indivPhone' : 'bookPhone')?.value || '+91 98140 00000';
+    const acres = parseFloat(document.getElementById(isIndividual ? 'indivAcres' : 'bookAcres')?.value) || 5.0;
+    const harvestDate = document.getElementById(isIndividual ? 'indivHarvestDate' : 'bookHarvestDate')?.value || new Date().toISOString().split('T')[0];
+    const referredBy = document.getElementById('indivReferredBy')?.value || null;
+    const bookingMode = isIndividual ? 'individual' : 'captain';
+    bookingData = { clusterId: villageId, villageId, farmerName, phone, acres, harvestDate, referredBy, booking_mode: bookingMode };
+  } else if (payload && typeof payload === 'object') {
+    bookingData = payload;
+  } else {
+    bookingData = { clusterId: 'VIL-KHERI', farmerName: 'Jagtar Singh', phone: '+91 98140 99881', acres: 5.0 };
+  }
+
+  const villageId = bookingData.clusterId || bookingData.villageId || 'VIL-KHERI';
+  const cluster = clientState.clusters.find(c => c.id === villageId || c.name === villageId) || clientState.clusters[0];
+  const acres = parseFloat(bookingData.acres) || 5.0;
+  const wasUnder20 = cluster.pooledAcres < cluster.targetAcres;
+  const newPooledAcres = Number((cluster.pooledAcres + acres).toFixed(1));
+  const thresholdReached = wasUnder20 && newPooledAcres >= cluster.targetAcres;
+
+  const villageCode = cluster.name.slice(0, 4).toUpperCase();
+  const refCode = bookingData.referralCode || `${villageCode}-${Math.floor(100 + Math.random() * 900)}`;
+  const bookingId = bookingData.id || `BK-${Date.now().toString(36).toUpperCase()}-${Math.floor(10 + Math.random() * 90)}`;
+
+  const newBooking = {
+    id: bookingId,
+    villageId: cluster.id,
+    villageName: cluster.name,
+    farmerName: (bookingData.farmerName || 'Farmer').trim(),
+    phone: (bookingData.phone || '+91 98140 00000').trim(),
+    acres: acres,
+    strawTonnes: Number((acres * 2.0).toFixed(1)),
+    harvestDate: bookingData.harvestDate || new Date().toISOString().split('T')[0],
+    moisturePercent: 14.5,
+    referralCode: refCode,
+    referredBy: bookingData.referredBy || null,
+    status: thresholdReached ? 'DISPATCHED' : 'POOLED'
+  };
+
+  // Update in-memory cluster
+  cluster.enrolledFarmers.unshift(newBooking);
+  cluster.pooledAcres = newPooledAcres;
+  cluster.strawTonnes = Number((cluster.pooledAcres * 2.0).toFixed(1));
+
+  let assignedBalerId = cluster.assignedBalerId;
+  if (thresholdReached) {
+    cluster.status = 'DISPATCHED';
+    if (!assignedBalerId) {
+      const idleBaler = clientState.balers.find(b => b.status === 'IDLE');
+      if (idleBaler) {
+        idleBaler.status = 'DISPATCHED';
+        idleBaler.assignedClusterId = cluster.id;
+        assignedBalerId = idleBaler.id;
+      } else {
+        assignedBalerId = 'BALER-PB-03';
+      }
+    }
+    cluster.assignedBalerId = assignedBalerId;
+  }
+
+  // Update persistent impact strip safely
+  if (!clientState.impact) {
+    clientState.impact = { tonnesDiverted: 0, co2TonnesAvoided: 0, pm25KgPrevented: 0, farmerSavingsInr: 0, ruralCashPaidInr: 0, platformProfitInr: 0 };
+  }
+  const allAcres = clientState.clusters.reduce((sum, c) => sum + c.pooledAcres, 0);
+  clientState.impact.tonnesDiverted = Number((allAcres * 2.0).toFixed(1));
+  clientState.impact.co2TonnesAvoided = Number((clientState.impact.tonnesDiverted * 1.46).toFixed(1));
+  clientState.impact.pm25KgPrevented = Number((clientState.impact.tonnesDiverted * 3.0).toFixed(1));
+  clientState.impact.farmerSavingsInr = Math.round(allAcres * 4000);
+  clientState.impact.ruralCashPaidInr = Math.round(allAcres * 300);
+  clientState.impact.platformProfitInr = Math.round(allAcres * 800);
+
+  saveClientState();
+  populateVillageDropdown();
+  renderAllViews();
+  if (leafletMap) updateLeafletMarkers();
+
+  // Supabase Database Operations
+  const sb = getSupabaseClient();
+  if (sb) {
+    try {
+      // 1. Insert new booking into 'bookings' (auto-generated id; ONLY sending specified columns)
+      console.log('[Supabase] Inserting new booking into "bookings"...');
+      const bookingMode = bookingData.booking_mode || bookingData.bookingMode || (currentBookingMode === 'farmer' ? 'individual' : 'captain');
+      const bookingPayload = {
+        village_id: cluster.id,
+        cluster_id: cluster.id,
+        village_name: cluster.name,
+        farmer_name: newBooking.farmerName,
+        phone: newBooking.phone,
+        acres: newBooking.acres,
+        harvest_date: newBooking.harvestDate,
+        booking_mode: bookingMode,
+        referral_code: newBooking.referralCode || null,
+        referred_by: newBooking.referredBy || null,
+        moisture_percent: newBooking.moisturePercent ?? 14.5,
+        status: newBooking.status || 'POOLED'
+      };
+      const { error: bErr } = await sb.from('bookings').insert([bookingPayload]);
+      if (bErr) console.warn('[Supabase] bookings insert note:', bErr.message);
+
+      // 2. Update matching row in 'village_clusters' (ONLY sending: acres, pooled_acres, baler, assigned_baler_id, status)
+      console.log('[Supabase] Updating "village_clusters"...');
+      const balerId = assignedBalerId || cluster.assignedBalerId || (newPooledAcres >= 20 ? 'BALER-PB-03' : null);
+      const clusterUpdateData = {
+        acres: newPooledAcres,
+        pooled_acres: newPooledAcres,
+        baler: balerId,
+        assigned_baler_id: balerId,
+        status: newPooledAcres >= 20 ? 'Dispatched' : cluster.status
+      };
+      const { error: cErr } = await sb.from('village_clusters').update(clusterUpdateData).eq('id', cluster.id);
+      if (cErr) console.warn('[Supabase] village_clusters update note:', cErr.message);
+
+      // 3. Update the assigned baler's status to 'Dispatched' in 'leased_balers'
+      if (thresholdReached && assignedBalerId) {
+        console.log('[Supabase] Updating assigned baler status to "Dispatched" in "leased_balers"...');
+        const { error: blrErr } = await sb.from('leased_balers').update({
+          status: 'Dispatched',
+          assigned_cluster_id: cluster.id
+        }).eq('id', assignedBalerId);
+        if (blrErr) console.warn('[Supabase] leased_balers update note:', blrErr.message);
+      }
+    } catch (sbEx) {
+      console.warn('[Supabase] submitBooking exception:', sbEx);
+    }
+  }
+
+  // Also sync with backend server API
+  try {
+    fetch('/api/captain/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        farmerName: newBooking.farmerName,
+        phone: newBooking.phone,
+        acres: newBooking.acres,
+        harvestDate: newBooking.harvestDate,
+        village: cluster.name,
+        district: cluster.district,
+        referredBy: newBooking.referredBy,
+        referralCode: newBooking.referralCode
+      })
+    }).catch(() => {});
+  } catch (e) {}
+
+  return { booking: newBooking, cluster, thresholdReached };
+}
+window.submitBooking = submitBooking;
+
 // -------------------------------------------------------------
 // Sarpanch Multi-Farmer Batch Submission Handler
 // -------------------------------------------------------------
@@ -916,6 +1385,8 @@ async function handleSarpanchBatchSubmit(e) {
 
   const batchAcres = validRows.reduce((sum, r) => sum + parseFloat(r.acres), 0);
   const wasUnder20 = cluster.pooledAcres < cluster.targetAcres;
+  const newPooledAcres = Number((cluster.pooledAcres + batchAcres).toFixed(1));
+  const thresholdReached = wasUnder20 && newPooledAcres >= cluster.targetAcres;
 
   const addedFarmers = validRows.map(r => ({
     id: `BK-${Date.now().toString(36).toUpperCase()}-${Math.floor(10 + Math.random() * 90)}`,
@@ -926,26 +1397,28 @@ async function handleSarpanchBatchSubmit(e) {
     harvestDate: r.harvestDate,
     moisturePercent: 14.5,
     referralCode: `SARPANCH-${cluster.name.replace(/\s+/g, '').toUpperCase()}`,
-    referredBy: null, // Sarpanch entry has no referredBy
-    status: 'POOLED'
+    referredBy: null,
+    status: thresholdReached ? 'DISPATCHED' : 'POOLED'
   }));
 
   cluster.enrolledFarmers.unshift(...addedFarmers);
-  cluster.pooledAcres = Number((cluster.pooledAcres + batchAcres).toFixed(1));
+  cluster.pooledAcres = newPooledAcres;
   cluster.strawTonnes = Number((cluster.pooledAcres * 2.0).toFixed(1));
 
-  let thresholdReached = false;
-  if (wasUnder20 && cluster.pooledAcres >= cluster.targetAcres) {
+  let assignedBalerId = cluster.assignedBalerId;
+  if (thresholdReached) {
     cluster.status = 'DISPATCHED';
-    thresholdReached = true;
-    cluster.assignedBalerId = 'BALER-PB-03';
-
-    const idleBaler = clientState.balers.find(b => b.status === 'IDLE');
-    if (idleBaler) {
-      idleBaler.status = 'DISPATCHED';
-      idleBaler.assignedClusterId = cluster.id;
-      cluster.assignedBalerId = idleBaler.id;
+    if (!assignedBalerId) {
+      const idleBaler = clientState.balers.find(b => b.status === 'IDLE');
+      if (idleBaler) {
+        idleBaler.status = 'DISPATCHED';
+        idleBaler.assignedClusterId = cluster.id;
+        assignedBalerId = idleBaler.id;
+      } else {
+        assignedBalerId = 'BALER-PB-03';
+      }
     }
+    cluster.assignedBalerId = assignedBalerId;
   }
 
   // Update persistent impact strip safely
@@ -959,6 +1432,55 @@ async function handleSarpanchBatchSubmit(e) {
   clientState.impact.farmerSavingsInr = Math.round(allAcres * 4000);
   clientState.impact.ruralCashPaidInr = Math.round(allAcres * 300);
   clientState.impact.platformProfitInr = Math.round(allAcres * 800);
+
+  saveClientState();
+  populateVillageDropdown();
+  renderAllViews();
+  if (leafletMap) updateLeafletMarkers();
+
+  // Supabase Live Batch Sync
+  const sb = getSupabaseClient();
+  if (sb) {
+    try {
+      console.log('[Supabase] Inserting batch bookings into "bookings" (auto-generated id; ONLY specified columns)...');
+      const insertRows = addedFarmers.map(f => ({
+        village_id: cluster.id,
+        cluster_id: cluster.id,
+        village_name: cluster.name,
+        farmer_name: f.farmerName,
+        phone: f.phone,
+        acres: f.acres,
+        harvest_date: f.harvestDate,
+        booking_mode: 'captain',
+        referral_code: f.referralCode || null,
+        referred_by: null,
+        moisture_percent: f.moisturePercent ?? 14.5,
+        status: f.status || 'POOLED'
+      }));
+      await sb.from('bookings').insert(insertRows);
+
+      console.log('[Supabase] Updating "village_clusters"...');
+      const balerId = assignedBalerId || cluster.assignedBalerId || (newPooledAcres >= 20 ? 'BALER-PB-03' : null);
+      const clusterUpdateData = {
+        acres: newPooledAcres,
+        pooled_acres: newPooledAcres,
+        baler: balerId,
+        assigned_baler_id: balerId,
+        status: newPooledAcres >= 20 ? 'Dispatched' : cluster.status
+      };
+      await sb.from('village_clusters').update(clusterUpdateData).eq('id', cluster.id);
+
+      if (thresholdReached && assignedBalerId) {
+        console.log('[Supabase] Updating assigned baler status to "Dispatched" in "leased_balers"...');
+        await sb.from('leased_balers').update({
+          status: 'Dispatched',
+          assigned_cluster_id: cluster.id
+        }).eq('id', assignedBalerId);
+      }
+    } catch (sbEx) {
+      console.warn('[Supabase] handleSarpanchBatchSubmit exception:', sbEx);
+    }
+  }
 
   // Send to backend API
   try {
@@ -975,12 +1497,6 @@ async function handleSarpanchBatchSubmit(e) {
     }).catch(err => console.warn('Backend sync notice:', err));
   } catch (err) {}
 
-  saveClientState();
-  populateVillageDropdown();
-  renderAllViews();
-  if (leafletMap) updateLeafletMarkers();
-
-  // Show Sarpanch Confirmation Modal
   openSarpanchBatchModal(cluster, addedFarmers.length, batchAcres, thresholdReached);
 }
 
@@ -1042,79 +1558,20 @@ async function handleIndividualSubmit(e) {
   const harvestDate = document.getElementById('indivHarvestDate').value;
   const referredBy = document.getElementById('indivReferredBy').value.trim();
 
-  const cluster = clientState.clusters.find(c => c.id === villageId) || clientState.clusters[0];
-  const villageCode = cluster.name.slice(0, 4).toUpperCase();
-  const newRefCode = `${villageCode}-${Math.floor(100 + Math.random() * 900)}`;
-
-  const newBooking = {
-    id: `BK-${Date.now().toString(36).toUpperCase()}`,
+  // Call the core submitBooking function which inserts to bookings and updates village_clusters & leased_balers
+  const res = await submitBooking({
+    clusterId: villageId,
+    villageId,
     farmerName,
     phone,
     acres,
-    strawTonnes: Number((acres * 2.0).toFixed(1)),
     harvestDate,
-    moisturePercent: 14.5,
-    referralCode: newRefCode,
-    referredBy: referredBy || null,
-    status: 'POOLED'
-  };
-
-  const wasUnder20 = cluster.pooledAcres < cluster.targetAcres;
-  cluster.enrolledFarmers.unshift(newBooking);
-  cluster.pooledAcres = Number((cluster.pooledAcres + acres).toFixed(1));
-  cluster.strawTonnes = Number((cluster.pooledAcres * 2.0).toFixed(1));
-
-  let thresholdReached = false;
-  if (wasUnder20 && cluster.pooledAcres >= cluster.targetAcres) {
-    cluster.status = 'DISPATCHED';
-    thresholdReached = true;
-    cluster.assignedBalerId = 'BALER-PB-03';
-
-    const idleBaler = clientState.balers.find(b => b.status === 'IDLE');
-    if (idleBaler) {
-      idleBaler.status = 'DISPATCHED';
-      idleBaler.assignedClusterId = cluster.id;
-      cluster.assignedBalerId = idleBaler.id;
-    }
-  }
-
-  // Update impact metrics safely
-  if (!clientState.impact) {
-    clientState.impact = { tonnesDiverted: 0, co2TonnesAvoided: 0, pm25KgPrevented: 0, farmerSavingsInr: 0, ruralCashPaidInr: 0, platformProfitInr: 0 };
-  }
-  const allAcres = clientState.clusters.reduce((sum, c) => sum + c.pooledAcres, 0);
-  clientState.impact.tonnesDiverted = Number((allAcres * 2.0).toFixed(1));
-  clientState.impact.co2TonnesAvoided = Number((clientState.impact.tonnesDiverted * 1.46).toFixed(1));
-  clientState.impact.pm25KgPrevented = Number((clientState.impact.tonnesDiverted * 3.0).toFixed(1));
-  clientState.impact.farmerSavingsInr = Math.round(allAcres * 4000);
-  clientState.impact.ruralCashPaidInr = Math.round(allAcres * 300);
-  clientState.impact.platformProfitInr = Math.round(allAcres * 800);
-
-  // Send to backend API
-  try {
-    fetch('/api/captain/batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        farmerName,
-        phone,
-        acres,
-        harvestDate,
-        village: cluster.name,
-        district: cluster.district,
-        referredBy: referredBy || null,
-        referralCode: newRefCode
-      })
-    }).catch(err => console.warn('Backend sync notice:', err));
-  } catch (err) {}
-
-  saveClientState();
-  populateVillageDropdown();
-  renderAllViews();
-  if (leafletMap) updateLeafletMarkers();
+    booking_mode: 'individual',
+    referredBy: referredBy || null
+  });
 
   // Show Confirmation Modal
-  openBookingConfirmationModal(newBooking, cluster, thresholdReached);
+  openBookingConfirmationModal(res.booking, res.cluster, res.thresholdReached);
 }
 
 function openBookingConfirmationModal(booking, cluster, thresholdReached) {
@@ -1165,7 +1622,8 @@ function renderB2BLots() {
   if (!container) return;
 
   container.innerHTML = clientState.lots.map(lot => {
-    const isSettled = lot.status === 'SETTLED';
+    const rawSt = (lot.status || '').toString().toLowerCase();
+    const isSold = rawSt === 'sold' || rawSt === 'settled';
 
     return `
       <div class="card-panel p-4 space-y-3">
@@ -1174,8 +1632,8 @@ function renderB2BLots() {
             <div class="font-semibold text-slate-900 text-sm">${lot.village}</div>
             <div class="text-xs text-slate-500 font-mono-code">Lot ID: #${lot.id} • ${lot.hubName}</div>
           </div>
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold ${isSettled ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
-            ${isSettled ? 'SETTLED & SOLD' : 'AVAILABLE LOT'}
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold ${isSold ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
+            ${isSold ? 'SETTLED & SOLD' : 'AVAILABLE LOT'}
           </span>
         </div>
 
@@ -1205,8 +1663,8 @@ function renderB2BLots() {
           </div>
 
           <div>
-            ${isSettled ? `
-              <span class="text-xs text-slate-500 font-medium">Settled with Verbio Bio-CNG</span>
+            ${isSold ? `
+              <span class="text-xs text-slate-500 font-medium">Settled & Sold (Verbio Bio-CNG)</span>
             ` : `
               <button onclick="reserveLot('${lot.id}')" class="btn-primary text-xs py-2 px-3">
                 Reserve & Settle Bulk Lot
@@ -1219,13 +1677,32 @@ function renderB2BLots() {
   }).join('');
 }
 
-function reserveLot(lotId) {
+// =============================================================
+// Requirement 3: Reserve Lot & Supabase Status Update
+// =============================================================
+async function reserveLot(lotId) {
   const lot = clientState.lots.find(l => l.id === lotId);
   if (!lot) return;
 
-  lot.status = 'SETTLED';
+  // Update in-memory lot status to 'Sold'
+  lot.status = 'Sold';
   saveClientState();
   renderAllViews();
+
+  // Supabase Database Update: update that lot's status to Sold in bulk_lots
+  const sb = getSupabaseClient();
+  if (sb) {
+    try {
+      console.log(`[Supabase] Updating lot ${lotId} status to "Sold" in "bulk_lots"...`);
+      const { error: lotErr } = await sb
+        .from('bulk_lots')
+        .update({ status: 'Sold' })
+        .eq('id', lotId);
+      if (lotErr) console.warn('[Supabase] bulk_lots update note:', lotErr.message);
+    } catch (sbEx) {
+      console.warn('[Supabase] reserveLot exception:', sbEx);
+    }
+  }
 
   const acres = lot.acres;
   const gross = lot.value;
@@ -1235,8 +1712,9 @@ function reserveLot(lotId) {
   const coord = acres * 120;
   const profit = gross - (baler + log + farmer + coord);
 
-  alert(`Bulk Straw Lot #${lot.id} successfully reserved & settled by Verbio India Bio-CNG Plant.\n\nGross Contract Value: ₹${gross.toLocaleString()}\n- Leased Baler Machine Cost: -₹${baler.toLocaleString()}\n- Logistics & Hub Freight: -₹${log.toLocaleString()}\n+ Landholder 5% Revenue Share: +₹${farmer.toLocaleString()}\n+ Coordinator Referral Pool: +₹${coord.toLocaleString()}\n= Platform Operating Profit: +₹${profit.toLocaleString()} (22.2% Margin)`);
+  alert(`Bulk Straw Lot #${lot.id} successfully reserved & settled by Verbio India Bio-CNG Plant.\n\nStatus: Sold\nGross Contract Value: ₹${gross.toLocaleString()}\n- Leased Baler Machine Cost: -₹${baler.toLocaleString()}\n- Logistics & Hub Freight: -₹${log.toLocaleString()}\n+ Landholder 5% Revenue Share: +₹${farmer.toLocaleString()}\n+ Coordinator Referral Pool: +₹${coord.toLocaleString()}\n= Platform Operating Profit: +₹${profit.toLocaleString()} (22.2% Margin)`);
 }
+window.reserveLot = reserveLot;
 
 // -------------------------------------------------------------
 // Tab 4: Unit Economics & Lease Simulator
