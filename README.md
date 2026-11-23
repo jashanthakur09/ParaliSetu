@@ -86,27 +86,33 @@ paralisetu/
 
 ## 🏃 Quick Start (How to Run)
 
-1. Open a terminal / command prompt in this directory:
-   ```bash
-   cd "C:\Users\JASHAN THAKUR\.gemini\antigravity\scratch\paralisetu"
-   ```
+## 🌐 Live Demo
+- **Production App:** [(https://paralisetu-70y762hvh-jashanthakur96-9564.vercel.app?_vercel_share=XDQUXcvf6MtRlheRNC8rzzqKpoNA3AUA)]
 
-2. Start the ParaliSetu server:
-   ```bash
-   node server/index.js
-   ```
-   *(Or `npm start`)*
+## 🚀 Quick Start (How to Run)
 
-3. Open your browser and navigate to:
-   ```
-   http://localhost:5000
-   ```
+### 1. Clone the repository
+```bash
+git clone [https://github.com/jashanthakur09/ParaliSetu.git](https://github.com/jashanthakur09/ParaliSetu.git)
+cd ParaliSetu
+2. Run Locally (Frontend + Live Supabase)
+Serve the public/ folder using any static server:
+npx serve public -l 3000
+Then open your browser and navigate to:
+http://localhost:3000
+3. (Optional) Run the Local Node Server & Tests
+npm install
+npm start
+node test_backend.js
+---
 
-4. Run the test suite:
-   ```bash
-   node test_backend.js
-   ```
+### 2. Paste in Supabase (`SQL Editor`)
+**Where:** Run this **right before your presentation** in **Supabase → SQL Editor** to clear test bookings and reset Kheri to 16/20 acres.
 
+```sql
+delete from bookings;
+update village_clusters set acres = 16, pooled_acres = 16, baler = null, assigned_baler_id = null, status = 'Gathering' where id = 'kheri';
+update leased_balers set status = 'Idle', assigned_cluster_id = null where id in ('BLR-03', 'BLR-04');
 ---
 
 ## 🌍 Climate & Economic Impact (Per 100 Leased Balers)
