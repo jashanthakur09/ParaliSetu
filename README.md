@@ -1,7 +1,7 @@
 # 🌾 ParaliSetu [ਪਰਾਲੀਸੇਤੂ 1.0]
 ### Satellite-Guided Stubble Aggregation & Automated Rural Dispatch Engine
 > **Track:** AgriTech / ClimateTech / Logistics  
-> **Team:** InfiniteLoop — Jashan Thakur, Prakul Thakur, Sikand Arora, Ruchir Sharma, Tanish Kinger  
+> **Team:** InfiniteLoop — Jashan Thakur[Leader], Prakul Thakur, Sikand Arora, Ruchir Sharma, Tanish Kinger  
 > **Event:** THE BUILDER'S THEORY 1.0
 
 ---
